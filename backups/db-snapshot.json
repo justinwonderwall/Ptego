@@ -1,0 +1,306 @@
+{
+  "exportedAt": "2026-09-04T03:55:22.269Z",
+  "tables": {
+    "settings": [
+      {
+        "id": 1,
+        "exam_date": "2026-09-20",
+        "theme": "light",
+        "target_band": "8"
+      }
+    ],
+    "task_types": [
+      {
+        "id": 1,
+        "name": "Read Aloud",
+        "section": "Speaking",
+        "daily_target": 10,
+        "sort_order": 0,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "4%"
+      },
+      {
+        "id": 2,
+        "name": "Repeat Sentence",
+        "section": "Speaking",
+        "daily_target": 15,
+        "sort_order": 1,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "7%"
+      },
+      {
+        "id": 3,
+        "name": "Describe Image",
+        "section": "Speaking",
+        "daily_target": 5,
+        "sort_order": 2,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "15%"
+      },
+      {
+        "id": 4,
+        "name": "Retell Lecture",
+        "section": "Speaking",
+        "daily_target": 3,
+        "sort_order": 3,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "6%"
+      },
+      {
+        "id": 5,
+        "name": "Answer Short Question",
+        "section": "Speaking",
+        "daily_target": 5,
+        "sort_order": 4,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "2%"
+      },
+      {
+        "id": 6,
+        "name": "Summarize Group Discussion",
+        "section": "Speaking",
+        "daily_target": 3,
+        "sort_order": 5,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "9%"
+      },
+      {
+        "id": 7,
+        "name": "Respond to a Situation",
+        "section": "Speaking",
+        "daily_target": 3,
+        "sort_order": 6,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "6%"
+      },
+      {
+        "id": 8,
+        "name": "Summarize Written Text",
+        "section": "Writing",
+        "daily_target": 2,
+        "sort_order": 7,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "7%"
+      },
+      {
+        "id": 9,
+        "name": "Write Essay",
+        "section": "Writing",
+        "daily_target": 1,
+        "sort_order": 8,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "7%"
+      },
+      {
+        "id": 10,
+        "name": "Fill in the Blanks (Dropdown)",
+        "section": "Reading",
+        "daily_target": 8,
+        "sort_order": 9,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "7%"
+      },
+      {
+        "id": 11,
+        "name": "Multiple Choice (Multiple)",
+        "section": "Reading",
+        "daily_target": 4,
+        "sort_order": 10,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "1%"
+      },
+      {
+        "id": 12,
+        "name": "Reorder Paragraph",
+        "section": "Reading",
+        "daily_target": 5,
+        "sort_order": 11,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "3%"
+      },
+      {
+        "id": 13,
+        "name": "Fill in the Blanks (Drag & Drop)",
+        "section": "Reading",
+        "daily_target": 8,
+        "sort_order": 12,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "6%"
+      },
+      {
+        "id": 14,
+        "name": "Multiple Choice (Single)",
+        "section": "Reading",
+        "daily_target": 4,
+        "sort_order": 13,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "<1%"
+      },
+      {
+        "id": 15,
+        "name": "Summarize Spoken Text",
+        "section": "Listening",
+        "daily_target": 3,
+        "sort_order": 14,
+        "archived": 0,
+        "ai_graded": 1,
+        "score_weight": "4%"
+      },
+      {
+        "id": 16,
+        "name": "Multiple Choice (Multiple)",
+        "section": "Listening",
+        "daily_target": 4,
+        "sort_order": 15,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "1%"
+      },
+      {
+        "id": 17,
+        "name": "Fill in the Blanks",
+        "section": "Listening",
+        "daily_target": 5,
+        "sort_order": 16,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "3%"
+      },
+      {
+        "id": 18,
+        "name": "Highlight Correct Summary",
+        "section": "Listening",
+        "daily_target": 3,
+        "sort_order": 17,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "<1%"
+      },
+      {
+        "id": 19,
+        "name": "Multiple Choice (Single)",
+        "section": "Listening",
+        "daily_target": 4,
+        "sort_order": 18,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "<1%"
+      },
+      {
+        "id": 20,
+        "name": "Select Missing Word",
+        "section": "Listening",
+        "daily_target": 3,
+        "sort_order": 19,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "1%"
+      },
+      {
+        "id": 21,
+        "name": "Highlight Incorrect Words",
+        "section": "Listening",
+        "daily_target": 5,
+        "sort_order": 20,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "4%"
+      },
+      {
+        "id": 22,
+        "name": "Write from Dictation",
+        "section": "Listening",
+        "daily_target": 15,
+        "sort_order": 21,
+        "archived": 0,
+        "ai_graded": 0,
+        "score_weight": "5%"
+      }
+    ],
+    "practice_logs": [],
+    "knowledge_points": [
+      {
+        "id": 2,
+        "category": "word_sense",
+        "term_en": "comprise vs consist",
+        "meaning_zh": "comprise：包括、由…组成；consist：由…构成",
+        "usage_example": "Comprise: The committee comprises ten members. Consist: The committee consists of ten members.",
+        "study_note": "用comprise时跟宾语直接搭配，不需要of，如'comprises thousands of bulbs'。用consist时必须接of，表示由某些部分组成，如'consists of thousands of bulbs'。",
+        "skill_tags": null,
+        "phonetic": null,
+        "audio_url": null,
+        "source_type": "text",
+        "raw_input": null,
+        "ease": 2.5,
+        "interval_days": 0,
+        "repetitions": 0,
+        "next_review": "2026-09-04",
+        "last_result": null,
+        "mastered": 0,
+        "created_at": "2026-09-04 03:31:39",
+        "updated_at": "2026-09-04 03:31:39"
+      },
+      {
+        "id": 3,
+        "category": "word_sense",
+        "term_en": "cooperation vs collaboration",
+        "meaning_zh": "cooperation：配合、协作；collaboration：协作、共创",
+        "usage_example": "Cooperation: Thank you for your cooperation. Collaboration: The two companies collaborated on a new product.",
+        "study_note": "Cooperation强调不添乱、愿意帮忙，更多出现在非正式和不对等的关系中；而collaboration强调共同参与、创造，通常各方地位平等，目标一致。collaboration有时也指负面意义的通敌行为。",
+        "skill_tags": null,
+        "phonetic": null,
+        "audio_url": null,
+        "source_type": "text",
+        "raw_input": null,
+        "ease": 2.5,
+        "interval_days": 0,
+        "repetitions": 0,
+        "next_review": "2026-09-04",
+        "last_result": null,
+        "mastered": 0,
+        "created_at": "2026-09-04 03:31:40",
+        "updated_at": "2026-09-04 03:31:40"
+      }
+    ],
+    "templates": [
+      {
+        "id": 1,
+        "title": "DI 万能模板",
+        "content": "This chart illustrates <b>the trend of</b>&nbsp;something over time.<div><u>Key point:</u>&nbsp;overall increase.</div><div><ol><li>Introduce the chart</li><li>Describe the trend</li><li>Give a conclusion</li></ol><img src=\"/uploads/1788490604156-test-image.png\"></div>",
+        "created_at": "2026-09-04 02:56:44",
+        "updated_at": "2026-09-04 02:58:52",
+        "type": "template"
+      },
+      {
+        "id": 2,
+        "title": "RL",
+        "content": "",
+        "created_at": "2026-09-04 02:59:04",
+        "updated_at": "2026-09-04 02:59:04",
+        "type": "template"
+      },
+      {
+        "id": 3,
+        "title": "DI 常见词汇总结",
+        "content": "图表类型：line chart, bar chart, pie chart...",
+        "created_at": "2026-09-04 03:30:23",
+        "updated_at": "2026-09-04 03:30:23",
+        "type": "note"
+      }
+    ]
+  }
+}
