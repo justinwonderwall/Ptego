@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import './index.css';
 import Home from './pages/Home';
 import Review from './pages/Review';
-import Templates from './pages/Templates';
+import Notes from './pages/Notes';
 import { ThemeProvider, useTheme } from './useTheme';
 import { useDueReminder } from './useDueReminder';
 
@@ -99,7 +99,7 @@ function Nav() {
         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm shadow-blue-500/30">
           <span className="text-white text-xs font-extrabold tracking-tight">P</span>
         </div>
-        <span className="font-bold text-slate-900 dark:text-white text-[15px] tracking-tight">PTE 备考</span>
+        <span className="font-bold text-slate-900 dark:text-white text-[15px] tracking-tight">PTE GO</span>
       </div>
 
       <NavItem to="/" end>首页</NavItem>
@@ -114,7 +114,7 @@ function Nav() {
         )}
       </NavItem>
 
-      <NavItem to="/templates">模板</NavItem>
+      <NavItem to="/notes">笔记</NavItem>
 
       <div className="ml-auto flex items-center gap-1">
         <NotifyToggle enabled={enabled} permission={permission} supported={supported} onToggle={toggle} />
@@ -134,7 +134,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Routes>
               <Route path="/"          element={<Home />} />
               <Route path="/review"    element={<Review />} />
-              <Route path="/templates" element={<Templates />} />
+              <Route path="/notes"     element={<Notes />} />
             </Routes>
           </div>
         </div>

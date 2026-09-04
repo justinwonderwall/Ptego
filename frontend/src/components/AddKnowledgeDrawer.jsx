@@ -8,7 +8,6 @@ const CATEGORIES = [
   { value: 'word_sense',  label: '词义辨析 Word Sense' },
   { value: 'collocation', label: '固定搭配 Collocation' },
   { value: 'polysemy',    label: '多义词 Polysemy' },
-  { value: 'pronunciation', label: '发音 Pronunciation' },
 ];
 
 const ACCEPT_IMAGE = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];

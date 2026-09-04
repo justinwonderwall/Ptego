@@ -10,11 +10,18 @@ const BAND_TARGETS = {
 };
 const BANDS = ['6', '7', '8'];
 
+// Once the exam is this close, nudge the user to consider postponing —
+// dismissed per exam_date, so re-showing only makes sense if they pick a
+// new date (see dismissedPostpone below).
+const POSTPONE_THRESHOLD_DAYS = 16;
+const POSTPONE_DISMISS_KEY = 'pte-postpone-dismissed-for';
+
 export default function ExamCountdown() {
   const [examDate, setExamDate] = useState(null);
   const [editing, setEditing] = useState(false);
   const [inputDate, setInputDate] = useState('');
   const [targetBand, setTargetBand] = useState(null);
+  const [dismissedPostpone, setDismissedPostpone] = useState(() => localStorage.getItem(POSTPONE_DISMISS_KEY));
 
   useEffect(() => {
     api.getSettings().then(s => {
@@ -27,6 +34,15 @@ export default function ExamCountdown() {
   const daysLeft = examDate
     ? Math.ceil((new Date(examDate) - new Date(new Date().toDateString())) / 86400000)
     : null;
+
+  const showPostponePrompt =
+    examDate && daysLeft !== null && daysLeft >= 0 && daysLeft <= POSTPONE_THRESHOLD_DAYS &&
+    dismissedPostpone !== examDate;
+
+  const dismissPostponePrompt = () => {
+    localStorage.setItem(POSTPONE_DISMISS_KEY, examDate);
+    setDismissedPostpone(examDate);
+  };
 
   const save = () => {
     if (!inputDate) return;
@@ -99,6 +115,29 @@ export default function ExamCountdown() {
               {examDate ? '修改日期' : '设置考试日期'}
             </button>
           </div>
+
+          {showPostponePrompt && (
+            <div className="mt-4 bg-white/15 rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+              <span className="text-sm flex items-center gap-2">
+                <span>⏰</span>
+                距考试只剩 {daysLeft} 天了，复习进度跟得上吗？要不要考虑推迟考试日期？
+              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setEditing(true)}
+                  className="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-50 transition-colors"
+                >
+                  修改日期
+                </button>
+                <button
+                  onClick={dismissPostponePrompt}
+                  className="px-2 py-1.5 text-white/70 hover:text-white text-xs"
+                >
+                  不用，继续冲刺
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="mt-5 pt-4 border-t border-white/15">
             <div className="flex items-center justify-between gap-3 flex-wrap">

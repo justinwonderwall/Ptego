@@ -82,42 +82,44 @@ export default function DailyPlan() {
         </div>
       </div>
 
-      {/* Sections — 2x2 grid: Speaking/Writing on top, Reading/Listening below */}
-      <div className="grid grid-cols-2">
-        {SECTIONS.map((section, i) => {
-          const sectionTasks = bySection[section] || [];
-          if (!sectionTasks.length) return null;
-          const style = SECTION_STYLES[section];
-          const secDone   = sectionTasks.reduce((s, t) => s + (t.done_today || 0), 0);
-          const secTarget = sectionTasks.reduce((s, t) => s + (t.daily_target || 0), 0);
-          const borderClasses = [
-            i % 2 === 0 ? 'border-r' : '',
-            i < 2 ? 'border-b' : '',
-          ].filter(Boolean).join(' ');
+      {/* Sections — two independent columns (Speaking+Reading / Writing+Listening),
+          each sized to its own content so a short section doesn't leave a gap
+          under it while forcing the opposite column to stretch. */}
+      <div className="flex items-start divide-x divide-slate-50 dark:divide-slate-700/50">
+        {[[SECTIONS[0], SECTIONS[2]], [SECTIONS[1], SECTIONS[3]]].map((column, colIdx) => (
+          <div key={colIdx} className="flex-1 min-w-0 flex flex-col divide-y divide-slate-50 dark:divide-slate-700/50">
+            {column.map(section => {
+              const sectionTasks = bySection[section] || [];
+              if (!sectionTasks.length) return null;
+              const style = SECTION_STYLES[section];
+              const secDone   = sectionTasks.reduce((s, t) => s + (t.done_today || 0), 0);
+              const secTarget = sectionTasks.reduce((s, t) => s + (t.daily_target || 0), 0);
 
-          return (
-            <div key={section} className={`px-5 py-3 min-w-0 ${borderClasses} border-slate-50 dark:border-slate-700/50`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className={`text-xs font-bold uppercase tracking-wider ${style.label}`}>
-                  {section}
-                </span>
-                <span className="text-xs text-slate-400 tabular-nums">
-                  {secDone}/{secTarget}
-                </span>
-              </div>
-              <div className="space-y-2">
-                {sectionTasks.map(task => (
-                  <TaskRow
-                    key={task.id}
-                    task={task}
-                    barColor={style.bar}
-                    onCheckIn={() => setCheckInTask(task)}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+              return (
+                <div key={section} className="px-5 py-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-bold uppercase tracking-wider ${style.label}`}>
+                      {section}
+                    </span>
+                    <span className="text-xs text-slate-400 tabular-nums">
+                      {secDone}/{secTarget}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {sectionTasks.map(task => (
+                      <TaskRow
+                        key={task.id}
+                        task={task}
+                        barColor={style.bar}
+                        onCheckIn={() => setCheckInTask(task)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {/* Toast */}

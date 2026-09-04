@@ -6,7 +6,6 @@ const CATEGORIES = [
   { value: 'word_sense',   label: '词义辨析' },
   { value: 'collocation',  label: '固定搭配' },
   { value: 'polysemy',     label: '多义词' },
-  { value: 'pronunciation', label: '发音' },
 ];
 
 const TAGS = [

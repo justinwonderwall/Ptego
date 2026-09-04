@@ -6,7 +6,6 @@ const CATEGORIES = [
   { value: 'word_sense',   label: '词义辨析' },
   { value: 'collocation',  label: '固定搭配' },
   { value: 'polysemy',     label: '多义词' },
-  { value: 'pronunciation', label: '发音' },
 ];
 
 const CAT_COLORS = {
@@ -14,7 +13,6 @@ const CAT_COLORS = {
   word_sense:   'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300',
   collocation:  'bg-teal-50  text-teal-600  dark:bg-teal-900/30  dark:text-teal-300',
   polysemy:     'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300',
-  pronunciation:'bg-pink-50  text-pink-600  dark:bg-pink-900/30  dark:text-pink-300',
 };
 
 export default function KnowledgeDetailModal({ item, onClose }) {

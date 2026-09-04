@@ -51,7 +51,8 @@ CREATE TABLE IF NOT EXISTS knowledge_points (
 CREATE TABLE IF NOT EXISTS templates (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   title         TEXT NOT NULL,
-  content       TEXT,                -- rich-text HTML from the template editor
+  content       TEXT,                -- rich-text HTML from the notes editor
+  type          TEXT DEFAULT 'template', -- 'note'(学习笔记) | 'template'(模板)
   created_at    TEXT DEFAULT (datetime('now')),
   updated_at    TEXT DEFAULT (datetime('now'))
 );

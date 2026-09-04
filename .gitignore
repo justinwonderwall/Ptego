@@ -7,3 +7,5 @@ dist/
 .history/
 .DS_Store
 **/.DS_Store
+scripts/backup.log
+scripts/app.log

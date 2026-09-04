@@ -4,14 +4,13 @@ import { ClickableText, DictResultPanel, useDictLookup } from './DictionaryLooku
 
 const CAT_LABELS = {
   grammar: '语法', word_sense: '词义辨析',
-  collocation: '固定搭配', polysemy: '多义词', pronunciation: '发音',
+  collocation: '固定搭配', polysemy: '多义词',
 };
 const CAT_COLORS = {
   grammar:      'bg-blue-50   text-blue-600   dark:bg-blue-900/30   dark:text-blue-300',
   word_sense:   'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300',
   collocation:  'bg-teal-50   text-teal-600   dark:bg-teal-900/30   dark:text-teal-300',
   polysemy:     'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300',
-  pronunciation:'bg-pink-50   text-pink-600   dark:bg-pink-900/30   dark:text-pink-300',
 };
 
 export default function Quiz() {

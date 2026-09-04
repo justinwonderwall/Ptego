@@ -27,7 +27,12 @@ router.post('/extract', upload.fields([
   const imageFiles = req.files?.image || [];
   const docFile = req.files?.file?.[0] || null;
   try {
-    const { text, category } = req.body;
+    const { text } = req.body;
+    // Multer arrays repeated form fields automatically, but a single
+    // selection arrives as a plain string — normalize both to an array.
+    const categories = Array.isArray(req.body.category)
+      ? req.body.category
+      : (req.body.category ? [req.body.category] : []);
     const images = imageFiles.map(f => ({ path: f.path, mimetype: f.mimetype }));
 
     let fileText = null;
@@ -64,7 +69,7 @@ router.post('/extract', upload.fields([
 
     // aiExtractor reads the image files from disk (base64-encodes them for the AI
     // call), so they must stay on disk until that call finishes — clean up after.
-    const points = await aiExtractor.extractKnowledge({ text, images, fileText, category });
+    const points = await aiExtractor.extractKnowledge({ text, images, fileText, categories });
     res.json(points);
   } catch (err) {
     console.error('Extract error:', err);

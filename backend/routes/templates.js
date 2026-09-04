@@ -27,22 +27,23 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, type } = req.body;
   if (!title?.trim()) return res.status(400).json({ error: 'Title is required' });
   const result = db.run(
-    'INSERT INTO templates (title, content) VALUES (?, ?)',
-    [title.trim(), content || '']
+    'INSERT INTO templates (title, content, type) VALUES (?, ?, ?)',
+    [title.trim(), content || '', type === 'note' ? 'note' : 'template']
   );
   const row = db.queryOne('SELECT * FROM templates WHERE id = ?', [result.lastInsertRowid]);
   res.status(201).json(row);
 });
 
 router.put('/:id', (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, type } = req.body;
   const updates = [];
   const params = [];
   if (title !== undefined)   { updates.push('title = ?');   params.push(title.trim()); }
   if (content !== undefined) { updates.push('content = ?'); params.push(content); }
+  if (type !== undefined)    { updates.push('type = ?');    params.push(type === 'note' ? 'note' : 'template'); }
   if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
   updates.push("updated_at = datetime('now')");
   params.push(Number(req.params.id));

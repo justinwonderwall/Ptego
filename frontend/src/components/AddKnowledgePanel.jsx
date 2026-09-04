@@ -8,7 +8,6 @@ const CATS = [
   { value: 'word_sense',   label: '词义辨析', color: 'border-purple-300 text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700' },
   { value: 'collocation',  label: '固定搭配', color: 'border-teal-300   text-teal-600   bg-teal-50   dark:bg-teal-900/30   dark:text-teal-300   dark:border-teal-700' },
   { value: 'polysemy',     label: '多义词',   color: 'border-orange-300 text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700' },
-  { value: 'pronunciation',label: '发音',    color: 'border-pink-300   text-pink-600   bg-pink-50   dark:bg-pink-900/30   dark:text-pink-300   dark:border-pink-700' },
 ];
 
 const ACCEPT_IMAGE = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -33,7 +32,7 @@ export default function AddKnowledgePanel() {
   const [text, setText]       = useState('');
   const [images, setImages]   = useState([]);    // [{ file, url }]
   const [docFile, setDocFile] = useState(null);  // { file, name }
-  const [category, setCat]    = useState('');
+  const [categories, setCategories] = useState([]); // multi-select — a file/image can mix several types
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
   const [savedMsg, setSavedMsg] = useState(null);
@@ -92,18 +91,21 @@ export default function AddKnowledgePanel() {
   };
 
   // ---------- extract ----------
-  const canExtract = (text.trim() || images.length || docFile) && category;
+  const canExtract = (text.trim() || images.length || docFile) && categories.length > 0;
+
+  const toggleCategory = (value) =>
+    setCategories(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
 
   const extract = async () => {
     if (!canExtract) {
-      setError(!category ? '请先选择分类' : '请输入内容或上传文件');
+      setError(!categories.length ? '请先选择至少一个分类' : '请输入内容或上传文件');
       return;
     }
     setLoading(true); setError(null);
     try {
       const fd = new FormData();
       if (text.trim()) fd.append('text', text.trim());
-      fd.append('category', category);
+      categories.forEach(c => fd.append('category', c));
       images.forEach(img => fd.append('image', img.file));
       if (docFile) fd.append('file', docFile.file);
       const points = await api.extractKnowledge(fd);
@@ -117,7 +119,7 @@ export default function AddKnowledgePanel() {
   };
 
   const handleConfirmed = (count) => {
-    setText(''); setCat('');
+    setText(''); setCategories([]);
     images.forEach(img => URL.revokeObjectURL(img.url));
     setImages([]); setDocFile(null); setExtracted(null);
     setSavedMsg(`已保存 ${count} 个知识点 ✓`);
@@ -213,22 +215,25 @@ export default function AddKnowledgePanel() {
             </div>
           )}
 
-          {/* 3. 分类勾选 */}
+          {/* 3. 分类勾选 — 多选，AI 会在同一份内容里分别找每种类型 */}
           <div>
-            <label className="text-xs text-slate-400 block mb-1.5">分类 <span className="text-red-400">*</span></label>
+            <label className="text-xs text-slate-400 block mb-1.5">
+              分类 <span className="text-red-400">*</span>
+              <span className="font-normal text-slate-300 dark:text-slate-500">（可多选）</span>
+            </label>
             <div className="flex flex-wrap gap-1.5">
               {CATS.map(c => (
                 <button
                   key={c.value}
                   type="button"
-                  onClick={() => setCat(v => v === c.value ? '' : c.value)}
+                  onClick={() => toggleCategory(c.value)}
                   className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-all ${
-                    category === c.value
+                    categories.includes(c.value)
                       ? c.color
                       : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'
                   }`}
                 >
-                  {category === c.value && <span className="mr-0.5">✓</span>}
+                  {categories.includes(c.value) && <span className="mr-0.5">✓</span>}
                   {c.label}
                 </button>
               ))}

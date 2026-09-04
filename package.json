@@ -6,7 +6,10 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "node --watch backend/server.js",
     "dev:frontend": "npm --prefix frontend run dev",
-    "install:all": "npm install && npm --prefix frontend install"
+    "install:all": "npm install && npm --prefix frontend install",
+    "backup": "bash scripts/backup.sh",
+    "restore": "node scripts/restore.js",
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.122.0",

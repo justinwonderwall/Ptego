@@ -33,6 +33,11 @@ async function initDb() {
     db.exec('ALTER TABLE settings ADD COLUMN target_band TEXT');
   }
 
+  const templateCols = db.pragma('table_info(templates)').map(c => c.name);
+  if (!templateCols.includes('type')) {
+    db.exec("ALTER TABLE templates ADD COLUMN type TEXT DEFAULT 'template'");
+  }
+
   // Seed task types
   const { c: taskTypeCount } = db.prepare('SELECT COUNT(*) as c FROM task_types').get();
   if (taskTypeCount === 0) {

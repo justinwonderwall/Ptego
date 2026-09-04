@@ -16,7 +16,7 @@ function notify(title, body, tag) {
 
 // Polls due-review count and, when enabled, fires a desktop notification
 // while the tab is backgrounded — so review reminders reach the user even
-// if PTE 备考 isn't the focused tab, as long as the browser stays open.
+// if PTE GO isn't the focused tab, as long as the browser stays open.
 export function useDueReminder() {
   const [dueCount, setDueCount] = useState(0);
   const [enabled, setEnabled] = useState(() => supported && localStorage.getItem(ENABLED_KEY) === '1');
@@ -30,7 +30,7 @@ export function useDueReminder() {
     const last = Number(localStorage.getItem(LAST_NOTIFIED_KEY) || 0);
     if (Date.now() - last < COOLDOWN_MS) return;
 
-    notify('PTE 备考 · 复习提醒', `你有 ${count} 个知识点待复习，趁热乎巩固一下吧`, 'pte-review-due');
+    notify('PTE GO · 复习提醒', `你有 ${count} 个知识点待复习，趁热乎巩固一下吧`, 'pte-review-due');
     localStorage.setItem(LAST_NOTIFIED_KEY, String(Date.now()));
   }, [enabled, permission]);
 
@@ -55,7 +55,7 @@ export function useDueReminder() {
     if (result === 'granted') {
       setEnabled(true);
       localStorage.setItem(ENABLED_KEY, '1');
-      notify('PTE 备考', '复习提醒已开启，有到期的知识点会在这里提醒你', 'pte-notify-confirm');
+      notify('PTE GO', '复习提醒已开启，有到期的知识点会在这里提醒你', 'pte-notify-confirm');
     }
   }, []);
 
