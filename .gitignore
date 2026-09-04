@@ -1,0 +1,9 @@
+node_modules/
+frontend/node_modules/
+.env
+backend/db/app.db*
+backend/uploads/
+dist/
+.history/
+.DS_Store
+**/.DS_Store
