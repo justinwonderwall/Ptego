@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 
 const numOnly = (v) => v.replace(/[^\d]/g, '');
+const DEFAULT_GROUPS = 3;
+const MAX_GROUPS = 30; // sanity cap — a huge 完成题数 shouldn't blow up the table
 
-export default function AccuracyCalculator({ onApply, onCancel }) {
-  const [cols, setCols] = useState([
-    { correct: '', wrong: '' },
-    { correct: '', wrong: '' },
-    { correct: '', wrong: '' },
-  ]);
+const initialColumns = (initialGroups) => {
+  const n = Math.min(MAX_GROUPS, Math.max(1, parseInt(initialGroups, 10) || DEFAULT_GROUPS));
+  return Array.from({ length: n }, () => ({ correct: '', wrong: '' }));
+};
+
+export default function AccuracyCalculator({ onApply, onCancel, initialGroups }) {
+  // Matches the 完成题数 the user already typed in — one group per question
+  // by default, so they're not stuck manually clicking "+ 添加一组" to catch up.
+  const [cols, setCols] = useState(() => initialColumns(initialGroups));
 
   const update = (idx, field, value) =>
     setCols(prev => prev.map((c, i) => (i === idx ? { ...c, [field]: numOnly(value) } : c)));

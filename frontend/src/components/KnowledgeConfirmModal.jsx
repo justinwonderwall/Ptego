@@ -68,6 +68,13 @@ export default function KnowledgeConfirmModal({ points, onBack, onConfirmed }) {
                   ×
                 </button>
 
+                {/* Input correctness check — flagged by the AI, not a saved field */}
+                {row.input_check && (
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2 text-xs text-amber-700 dark:text-amber-400 pr-7">
+                    ⚠️ {row.input_check}
+                  </div>
+                )}
+
                 {/* Row 1: category + term */}
                 <div className="grid grid-cols-2 gap-2 pr-7">
                   <div>

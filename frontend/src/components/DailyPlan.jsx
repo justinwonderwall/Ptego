@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../api';
 import CheckInModal from './CheckInModal';
 import TaskSettingsModal from './TaskSettingsModal';
+import TaskHistoryModal from './TaskHistoryModal';
 
 const SECTIONS = ['Speaking', 'Writing', 'Reading', 'Listening'];
 
@@ -16,6 +17,7 @@ export default function DailyPlan() {
   const [tasks, setTasks] = useState([]);
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0 });
   const [checkInTask, setCheckInTask] = useState(null);
+  const [historyTask, setHistoryTask] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -112,6 +114,7 @@ export default function DailyPlan() {
                         task={task}
                         barColor={style.bar}
                         onCheckIn={() => setCheckInTask(task)}
+                        onShowHistory={() => setHistoryTask(task)}
                       />
                     ))}
                   </div>
@@ -143,11 +146,15 @@ export default function DailyPlan() {
           onSaved={() => { load(); showToast('计划已更新 ✓'); }}
         />
       )}
+
+      {historyTask && (
+        <TaskHistoryModal task={historyTask} onClose={() => setHistoryTask(null)} />
+      )}
     </div>
   );
 }
 
-function TaskRow({ task, barColor, onCheckIn }) {
+function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
   const done    = task.done_today || 0;
   const target  = task.daily_target || 1;
   const pct     = Math.min(100, Math.round(done / target * 100));
@@ -155,15 +162,18 @@ function TaskRow({ task, barColor, onCheckIn }) {
 
   return (
     <div className="flex items-center gap-3 group">
-      <span
-        className={`text-sm flex-1 min-w-0 truncate leading-tight ${
+      <button
+        type="button"
+        onClick={onShowHistory}
+        title="查看打卡历史"
+        className={`text-sm flex-1 min-w-0 truncate leading-tight text-left hover:underline decoration-dotted underline-offset-2 ${
           complete
             ? 'text-slate-300 dark:text-slate-600 line-through'
             : 'text-slate-700 dark:text-slate-200'
         }`}
       >
         {task.name}
-      </span>
+      </button>
       <div className="flex items-center gap-2 shrink-0">
         <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div

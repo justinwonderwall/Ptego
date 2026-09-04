@@ -55,7 +55,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
         transition-[width] ${showCalc ? 'w-[480px]' : 'w-96'}`}
     >
       {showCalc ? (
-        <AccuracyCalculator onApply={applyCalculated} onCancel={() => setShowCalc(false)} />
+        <AccuracyCalculator initialGroups={count} onApply={applyCalculated} onCancel={() => setShowCalc(false)} />
       ) : (
         <>
           <div className="flex items-start justify-between gap-2">

@@ -13,6 +13,20 @@ router.post('/logs', (req, res) => {
   res.status(201).json({ id: result.lastInsertRowid });
 });
 
+router.get('/logs', (req, res) => {
+  const { task_type_id, limit = 50 } = req.query;
+  if (!task_type_id) return res.status(400).json({ error: 'task_type_id is required' });
+  const rows = db.query(
+    `SELECT id, log_date, count, score_pct, note, created_at
+     FROM practice_logs
+     WHERE task_type_id = ?
+     ORDER BY log_date DESC, created_at DESC
+     LIMIT ?`,
+    [Number(task_type_id), Number(limit)]
+  );
+  res.json(rows);
+});
+
 router.get('/logs/today', (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const types = db.query(
@@ -29,19 +43,48 @@ router.get('/logs/today', (req, res) => {
 
 router.get('/logs/accuracy', (req, res) => {
   const range = req.query.range || '30d';
+  const section = req.query.section || null; // e.g. 'Reading' — filters to that section's task types
+  const breakdown = req.query.breakdown === 'true';
   const days = range === '7d' ? 7 : range === '30d' ? 30 : 3650;
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const sectionFilter = section ? 'AND tt.section = ?' : '';
+  const baseParams = section ? [cutoffStr, section] : [cutoffStr];
+
+  if (!breakdown) {
+    const rows = db.query(
+      `SELECT pl.log_date as date, AVG(pl.score_pct) as avg_score_pct
+       FROM practice_logs pl
+       JOIN task_types tt ON tt.id = pl.task_type_id
+       WHERE pl.score_pct IS NOT NULL AND pl.log_date >= ? ${sectionFilter}
+       GROUP BY pl.log_date
+       ORDER BY pl.log_date`,
+      baseParams
+    );
+    return res.json(rows);
+  }
+
+  // Breakdown: one accuracy series per task type, pivoted into a wide
+  // { tasks: [...], rows: [{ date, [taskName]: avgScore, ... }] } shape so the
+  // frontend can render one Recharts <Line> per task without re-shaping it.
   const rows = db.query(
-    `SELECT log_date as date, AVG(score_pct) as avg_score_pct
-     FROM practice_logs
-     WHERE score_pct IS NOT NULL AND log_date >= ?
-     GROUP BY log_date
-     ORDER BY log_date`,
-    [cutoffStr]
+    `SELECT pl.log_date as date, tt.name as task_name, AVG(pl.score_pct) as avg_score_pct
+     FROM practice_logs pl
+     JOIN task_types tt ON tt.id = pl.task_type_id
+     WHERE pl.score_pct IS NOT NULL AND pl.log_date >= ? ${sectionFilter}
+     GROUP BY pl.log_date, tt.name
+     ORDER BY pl.log_date`,
+    baseParams
   );
-  res.json(rows);
+  const tasks = [...new Set(rows.map(r => r.task_name))];
+  const byDate = {};
+  for (const r of rows) {
+    byDate[r.date] = byDate[r.date] || { date: r.date };
+    byDate[r.date][r.task_name] = r.avg_score_pct;
+  }
+  res.json({ tasks, rows: Object.values(byDate) });
 });
 
 router.get('/logs/streak', (req, res) => {

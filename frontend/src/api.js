@@ -24,8 +24,9 @@ export const api = {
   // Practice
   logPractice: (body)     => request('/practice/logs', { method: 'POST', body: JSON.stringify(body) }),
   getTodayProgress: ()    => request('/practice/logs/today'),
-  getAccuracy: (range)    => request(`/practice/logs/accuracy?range=${range}`),
+  getAccuracy: (range, opts = {}) => request(`/practice/logs/accuracy?${new URLSearchParams({ range, ...opts })}`),
   getStreak: ()           => request('/practice/logs/streak'),
+  getTaskLogs: (taskTypeId) => request('/practice/logs?' + new URLSearchParams({ task_type_id: taskTypeId })),
 
   // Knowledge
   extractKnowledge: (formData) => fetch(BASE + '/knowledge/extract', { method: 'POST', body: formData })
