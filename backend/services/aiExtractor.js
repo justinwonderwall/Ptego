@@ -97,7 +97,7 @@ async function extractKnowledge({ text, images = [], fileText, categories = [] }
     });
   }
 
-  const raw = await provider.callModel(SYSTEM_PROMPT, content);
+  const raw = await provider.callModel(SYSTEM_PROMPT, [{ role: 'user', content }]);
   return parseResult(raw);
 }
 

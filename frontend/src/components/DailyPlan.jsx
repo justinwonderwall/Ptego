@@ -7,10 +7,10 @@ import TaskHistoryModal from './TaskHistoryModal';
 const SECTIONS = ['Speaking', 'Writing', 'Reading', 'Listening'];
 
 const SECTION_STYLES = {
-  Speaking:  { label: 'text-teal-600  dark:text-teal-400',  bar: 'bg-teal-400'  },
-  Writing:   { label: 'text-blue-600  dark:text-blue-400',  bar: 'bg-blue-400'  },
-  Reading:   { label: 'text-purple-600 dark:text-purple-400', bar: 'bg-purple-400' },
-  Listening: { label: 'text-orange-500 dark:text-orange-400', bar: 'bg-orange-400' },
+  Speaking:  { label: 'text-teal-600  dark:text-teal-400',  bar: 'from-teal-400 to-cyan-500'  },
+  Writing:   { label: 'text-blue-600  dark:text-blue-400',  bar: 'from-blue-400 to-indigo-500'  },
+  Reading:   { label: 'text-purple-600 dark:text-purple-400', bar: 'from-purple-400 to-fuchsia-500' },
+  Listening: { label: 'text-orange-500 dark:text-orange-400', bar: 'from-orange-400 to-amber-500' },
 };
 
 export default function DailyPlan() {
@@ -43,9 +43,9 @@ export default function DailyPlan() {
   }, {});
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/80">
+    <div className="card-surface">
       {/* Summary bar */}
-      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4 flex-wrap">
+      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <span className="text-sm text-slate-500 dark:text-slate-400">今日完成</span>
           <span className="font-bold text-slate-900 dark:text-slate-100 tabular-nums">
@@ -53,7 +53,7 @@ export default function DailyPlan() {
           </span>
           <div className="w-28 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-500"
               style={{ width: `${overallPct}%` }}
             />
           </div>
@@ -87,9 +87,9 @@ export default function DailyPlan() {
       {/* Sections — two independent columns (Speaking+Reading / Writing+Listening),
           each sized to its own content so a short section doesn't leave a gap
           under it while forcing the opposite column to stretch. */}
-      <div className="flex items-start divide-x divide-slate-50 dark:divide-slate-700/50">
+      <div className="flex items-start divide-x divide-slate-100/80 dark:divide-slate-700/40">
         {[[SECTIONS[0], SECTIONS[2]], [SECTIONS[1], SECTIONS[3]]].map((column, colIdx) => (
-          <div key={colIdx} className="flex-1 min-w-0 flex flex-col divide-y divide-slate-50 dark:divide-slate-700/50">
+          <div key={colIdx} className="flex-1 min-w-0 flex flex-col divide-y divide-slate-100/80 dark:divide-slate-700/40">
             {column.map(section => {
               const sectionTasks = bySection[section] || [];
               if (!sectionTasks.length) return null;
@@ -161,7 +161,7 @@ function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
   const complete = done >= target;
 
   return (
-    <div className="flex items-center gap-3 group">
+    <div className="flex items-center gap-3 group -mx-1.5 px-1.5 py-0.5 rounded-lg transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]">
       <button
         type="button"
         onClick={onShowHistory}
@@ -175,10 +175,10 @@ function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
         {task.name}
       </button>
       <div className="flex items-center gap-2 shrink-0">
-        <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+        <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-700/70 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              complete ? 'bg-green-400' : barColor
+              complete ? 'bg-gradient-to-r from-green-400 to-emerald-500' : `bg-gradient-to-r ${barColor}`
             }`}
             style={{ width: `${pct}%` }}
           />
@@ -188,11 +188,11 @@ function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
         </span>
         <button
           onClick={onCheckIn}
-          className="text-xs px-2 py-0.5 rounded border font-medium transition-colors
+          className="text-xs px-2 py-0.5 rounded-md border font-medium transition-all duration-150
             bg-slate-50 text-slate-500 border-slate-200
-            hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200
-            dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600
-            dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+            hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-[0_4px_10px_-2px_rgb(59_130_246/0.5)] hover:-translate-y-px
+            dark:bg-slate-700/60 dark:text-slate-400 dark:border-slate-600
+            dark:hover:bg-blue-500 dark:hover:text-white dark:hover:border-blue-500"
         >
           打卡
         </button>

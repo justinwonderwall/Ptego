@@ -1,19 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../api';
-import RichEditor from '../components/RichEditor';
+import MarkdownEditor from '../components/MarkdownEditor';
+import ArticleToc from '../components/ArticleToc';
+import ArticleListNav from '../components/ArticleListNav';
 
 const TABS = [
   { key: 'note',     label: '学习笔记', newLabel: '+ 新增笔记',   emptyTitle: '还没有学习笔记', emptyHint: '点击右上角"新增笔记"，记录你总结的做题技巧' },
   { key: 'template', label: '模板',    newLabel: '+ 新增模板',   emptyTitle: '还没有模板',    emptyHint: '点击右上角"新增模板"，记录你的备考套路、DI 案例等' },
 ];
 
-// textContent both strips tags and decodes entities (&nbsp; etc.) in one
-// pass — a regex replace would leave entities like &nbsp; as literal text.
-const stripHtml = (html) => {
-  if (!html) return '';
+// Strips both leftover HTML (older notes saved before the markdown editor)
+// and common Markdown syntax markers, for a plain-text list preview.
+const stripFormatting = (raw) => {
+  if (!raw) return '';
   const div = document.createElement('div');
-  div.innerHTML = html;
-  return (div.textContent || '').replace(/\s+/g, ' ').trim();
+  div.innerHTML = raw;
+  return (div.textContent || raw)
+    .replace(/!\[[^\]]*]\([^)]*\)/g, '')  // markdown images
+    .replace(/[#>*_`~-]/g, '')            // markdown syntax markers
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const formatDate = (iso) => {
@@ -27,9 +33,11 @@ export default function Notes() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('note');
-  const [active, setActive] = useState(null); // null | { id: number|'new', title, content, type }
+  const [active, setActive] = useState(null); // null | { id: number|'new', title, content, type, updated_at? }
+  const [mode, setMode] = useState('view'); // 'view' | 'edit'
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const contentRef = useRef(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -38,30 +46,35 @@ export default function Notes() {
 
   useEffect(() => { load(); }, [load]);
 
-  const openNew = () => setActive({ id: 'new', title: '', content: '', type: tab });
-  const openExisting = (item) => setActive({ ...item });
+  const openNew = () => { setActive({ id: 'new', title: '', content: '', type: tab }); setMode('edit'); };
+  const openExisting = (item) => { setActive({ ...item }); setMode('view'); };
   const back = () => setActive(null);
 
   const activeMeta = TABS.find(t => t.key === (active?.type || tab));
   const label = activeMeta?.label || '笔记';
 
-  const save = async () => {
+  const publish = async () => {
     if (!active.title.trim()) { alert('请输入标题'); return; }
     setSaving(true);
     try {
-      if (active.id === 'new') {
-        const saved = await api.createTemplate({ title: active.title, content: active.content, type: active.type });
-        setActive(saved);
-      } else {
-        const saved = await api.updateTemplate(active.id, { title: active.title, content: active.content, type: active.type });
-        setActive(saved);
-      }
+      const saved = active.id === 'new'
+        ? await api.createTemplate({ title: active.title, content: active.content, type: active.type })
+        : await api.updateTemplate(active.id, { title: active.title, content: active.content, type: active.type });
+      setActive(saved);
+      setMode('view');
       await load();
     } catch (e) {
       alert('保存失败：' + e.message);
     } finally {
       setSaving(false);
     }
+  };
+
+  const cancelEdit = () => {
+    if (active.id === 'new') { back(); return; }
+    const saved = list.find(item => item.id === active.id);
+    if (saved) setActive({ ...saved });
+    setMode('view');
   };
 
   const confirmDelete = async () => {
@@ -72,8 +85,9 @@ export default function Notes() {
   };
 
   if (active) {
+    const editing = mode === 'edit';
     return (
-      <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="max-w-5xl mx-auto px-4 py-6">
         <button
           onClick={back}
           className="text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 mb-4 flex items-center gap-1"
@@ -81,67 +95,108 @@ export default function Notes() {
           ← 返回列表
         </button>
 
-        <div className="flex items-center gap-1.5 mb-3">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              type="button"
-              onClick={() => setActive(a => ({ ...a, type: t.key }))}
-              className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${
-                active.type === t.key
-                  ? 'bg-blue-500 text-white border-blue-500'
-                  : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-300'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="flex items-start gap-8">
+        <div className="hidden lg:flex flex-col gap-6 shrink-0 sticky top-6 self-start">
+          <ArticleListNav list={list} active={active} typeLabel={label} onSelect={openExisting} />
+          <ArticleToc containerRef={contentRef} watch={`${active.id}-${mode}-${active.content}`} />
         </div>
+        <div className="flex-1 min-w-0 max-w-3xl">
 
-        <input
-          value={active.title}
-          onChange={e => setActive(a => ({ ...a, title: e.target.value }))}
-          placeholder={activeMeta?.key === 'note' ? '笔记标题…' : '模板标题…'}
-          className="w-full text-2xl font-bold text-slate-900 dark:text-slate-100 bg-transparent border-0 border-b-2
-            border-transparent focus:border-blue-400 focus:outline-none pb-2 mb-4 placeholder:text-slate-300 dark:placeholder:text-slate-600"
-        />
-
-        <RichEditor
-          editorKey={active.id}
-          initialContent={active.content}
-          onChange={html => setActive(a => ({ ...a, content: html }))}
-        />
-
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            {active.id !== 'new' && (
+        {editing ? (
+          <div className="flex items-center gap-1.5 mb-3">
+            {TABS.map(t => (
               <button
-                onClick={() => setDeleteId(active.id)}
-                className="text-sm text-red-400 hover:text-red-500 font-medium"
+                key={t.key}
+                type="button"
+                onClick={() => setActive(a => ({ ...a, type: t.key }))}
+                className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${
+                  active.type === t.key
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-300'
+                }`}
               >
-                删除{label}
+                {t.label}
               </button>
-            )}
+            ))}
           </div>
-          <div className="flex items-center gap-3">
-            {active.updated_at && (
-              <span className="text-xs text-slate-400">最后保存：{formatDate(active.updated_at)}</span>
-            )}
+        ) : (
+          <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-3 ${
+            active.type === 'note'
+              ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
+              : 'bg-teal-50 text-teal-600 dark:bg-teal-900/30 dark:text-teal-300'
+          }`}>
+            {label}
+          </span>
+        )}
+
+        {editing ? (
+          <input
+            value={active.title}
+            onChange={e => setActive(a => ({ ...a, title: e.target.value }))}
+            placeholder={active.type === 'note' ? '笔记标题…' : '模板标题…'}
+            className="w-full text-2xl font-bold text-slate-900 dark:text-slate-100 bg-transparent border-0 border-b-2
+              border-transparent focus:border-blue-400 focus:outline-none pb-2 mb-4 placeholder:text-slate-300 dark:placeholder:text-slate-600"
+          />
+        ) : (
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 pb-1">{active.title}</h1>
+        )}
+
+        {!editing && (
+          <div className="flex items-center gap-2.5 text-xs text-slate-400 dark:text-slate-500 mb-5">
             <button
-              onClick={save}
-              disabled={saving}
-              className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold
-                disabled:opacity-50 transition-colors"
+              onClick={() => setMode('edit')}
+              className="font-medium text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
-              {saving ? '保存中…' : '保存'}
+              编辑
+            </button>
+            {active.updated_at && (
+              <>
+                <span className="text-slate-200 dark:text-slate-700">·</span>
+                <span>最后保存：{formatDate(active.updated_at)}</span>
+              </>
+            )}
+            <span className="text-slate-200 dark:text-slate-700">·</span>
+            <button
+              onClick={() => setDeleteId(active.id)}
+              className="font-medium text-red-400 hover:text-red-500 transition-colors"
+            >
+              删除文章
             </button>
           </div>
+        )}
+
+        <div ref={contentRef}>
+          <MarkdownEditor
+            editorKey={`${active.id}-${mode}`}
+            markdown={active.content}
+            readOnly={!editing}
+            onChange={md => setActive(a => ({ ...a, content: md }))}
+          />
         </div>
+
+        {editing && (
+          <div className="flex items-center justify-end gap-3 mt-4">
+            <button
+              onClick={cancelEdit}
+              className="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium
+                text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              取消
+            </button>
+            <button
+              onClick={publish}
+              disabled={saving}
+              className="btn-glow px-5 py-2 text-white rounded-lg text-sm font-semibold disabled:cursor-not-allowed"
+            >
+              {saving ? '发布中…' : '发布'}
+            </button>
+          </div>
+        )}
 
         {deleteId && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setDeleteId(null)}>
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 w-72 text-center space-y-4" onClick={e => e.stopPropagation()}>
-              <p className="font-medium text-slate-900 dark:text-slate-100">确认删除该{label}？</p>
+            <div className="card-surface !bg-white dark:!bg-slate-800 shadow-xl p-6 w-72 text-center space-y-4" onClick={e => e.stopPropagation()}>
+              <p className="font-medium text-slate-900 dark:text-slate-100">确认删除该文章？</p>
               <p className="text-sm text-slate-400">此操作无法撤销</p>
               <div className="flex gap-2">
                 <button onClick={confirmDelete} className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-2.5 text-sm font-semibold transition-colors">删除</button>
@@ -150,6 +205,8 @@ export default function Notes() {
             </div>
           </div>
         )}
+        </div>
+        </div>
       </div>
     );
   }
@@ -178,7 +235,7 @@ export default function Notes() {
         </div>
         <button
           onClick={openNew}
-          className="mb-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold transition-colors"
+          className="btn-glow mb-2 px-4 py-2 text-white rounded-lg text-sm font-semibold"
         >
           {activeTabMeta.newLabel}
         </button>
@@ -198,16 +255,15 @@ export default function Notes() {
             <button
               key={item.id}
               onClick={() => openExisting(item)}
-              className="w-full text-left bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80
-                shadow-sm hover:border-blue-200 dark:hover:border-blue-800 transition-colors px-5 py-4"
+              className="card-surface card-interactive w-full text-left hover:border-blue-200/70 dark:hover:border-blue-800/70 px-5 py-4"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{item.title}</h3>
                 <span className="text-xs text-slate-400 shrink-0">{formatDate(item.updated_at)}</span>
               </div>
-              {stripHtml(item.content) && (
+              {stripFormatting(item.content) && (
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
-                  {stripHtml(item.content)}
+                  {stripFormatting(item.content)}
                 </p>
               )}
             </button>

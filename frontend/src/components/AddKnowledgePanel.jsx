@@ -128,12 +128,12 @@ export default function AddKnowledgePanel() {
 
   return (
     <>
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-sm flex flex-col h-full">
-        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
+      <div className="card-surface flex flex-col">
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700/60 shrink-0">
           <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">录入知识点</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+        <div className="px-4 py-3 space-y-3">
 
           {/* 0. 字典查询 */}
           <DictionaryQuickAdd />
@@ -146,7 +146,7 @@ export default function AddKnowledgePanel() {
               onChange={e => setText(e.target.value)}
               onPaste={handlePaste}
               placeholder="输入或粘贴要整理的单词、句子、段落…"
-              rows={5}
+              rows={3}
               className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm
                 dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400 resize-none"
             />
@@ -165,19 +165,16 @@ export default function AddKnowledgePanel() {
             >
               <div className="flex divide-x divide-slate-200 dark:divide-slate-600">
                 <button type="button" onClick={() => imgRef.current?.click()}
-                  className="flex-1 py-3 flex flex-col items-center gap-0.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <span className="text-lg">🖼</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">图片</span>
-                  <span className="text-[10px] text-slate-400">PNG · JPG</span>
+                  className="flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <span className="text-sm">🖼</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">图片 <span className="text-slate-400">PNG·JPG</span></span>
                 </button>
                 <button type="button" onClick={() => docRef.current?.click()}
-                  className="flex-1 py-3 flex flex-col items-center gap-0.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <span className="text-lg">📄</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">文件</span>
-                  <span className="text-[10px] text-slate-400">PDF · Word · TXT · MD</span>
+                  className="flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <span className="text-sm">📄</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">文件 <span className="text-slate-400">PDF·Word·TXT·MD</span></span>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-300 dark:text-slate-600 text-center pb-2">或将文件拖拽到此处</p>
             </div>
             <input ref={imgRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple className="hidden" onChange={handleFileChange} />
             <input
@@ -254,12 +251,12 @@ export default function AddKnowledgePanel() {
         </div>
 
         {/* Footer button */}
-        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 shrink-0">
+        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700/60 shrink-0">
           <button
             onClick={extract}
             disabled={loading || !canExtract}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl py-2.5 text-sm font-semibold
-              disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="btn-glow w-full text-white rounded-xl py-2.5 text-sm font-semibold
+              disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

@@ -125,18 +125,35 @@ export default function Overview() {
       ) : rows.length === 0 ? (
         <div className="text-center text-slate-400 py-12">没有匹配的知识点</div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-700/70
+          shadow-[0_1px_2px_rgb(15_23_42/0.04),0_10px_28px_-16px_rgb(15_23_42/0.16)]
+          dark:shadow-[0_1px_2px_rgb(0_0_0/0.3),0_14px_32px_-18px_rgb(0_0_0/0.6)]">
+          {/* table-fixed + explicit column widths keep every column's content
+              on one line, deterministically — an auto-layout table let the
+              英文 column's whitespace-nowrap squeeze 状态 down to almost
+              nothing, which wrapped 学习中/已毕业 into vertical stacks of
+              single characters and blew up the whole row's height. */}
+          <table className="w-full text-sm table-fixed">
+            <colgroup>
+              <col className="w-[88px]" />
+              <col className="w-[100px] hidden lg:table-column" />
+              <col className="w-[22%]" />
+              <col />
+              <col className="w-[100px] hidden md:table-column" />
+              <col className="w-[92px] hidden md:table-column" />
+              <col className="w-[68px]" />
+              <col className="w-[64px]" />
+            </colgroup>
             <thead className="bg-slate-50 dark:bg-slate-700/50">
               <tr className="text-xs text-slate-400 uppercase tracking-wider">
-                <th className="px-3 py-2.5 text-left font-medium">分类</th>
-                <th className="px-3 py-2.5 text-left font-medium hidden lg:table-cell">标签</th>
-                <th className="px-3 py-2.5 text-left font-medium">英文</th>
-                <th className="px-3 py-2.5 text-left font-medium">中文解释</th>
-                <th className="px-3 py-2.5 text-left font-medium hidden md:table-cell">音标</th>
-                <th className="px-3 py-2.5 text-left font-medium hidden md:table-cell">下次复习</th>
-                <th className="px-3 py-2.5 text-left font-medium">状态</th>
-                <th className="px-2 py-2.5"></th>
+                <th className="px-3 py-2 text-left font-medium">分类</th>
+                <th className="px-3 py-2 text-left font-medium hidden lg:table-cell">标签</th>
+                <th className="px-3 py-2 text-left font-medium">英文</th>
+                <th className="px-3 py-2 text-left font-medium">中文解释</th>
+                <th className="px-3 py-2 text-left font-medium hidden md:table-cell">音标</th>
+                <th className="px-3 py-2 text-left font-medium hidden md:table-cell">下次复习</th>
+                <th className="px-3 py-2 text-left font-medium">状态</th>
+                <th className="px-2 py-2"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
@@ -146,38 +163,38 @@ export default function Overview() {
                   onClick={() => setDetailItem(row)}
                   className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
                 >
-                  <td className="px-3 py-2.5">
+                  <td className="px-3 py-2 whitespace-nowrap">
                     <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${CAT_COLORS[row.category] || 'bg-slate-100 text-slate-500'}`}>
                       {CATS.find(c => c.value === row.category)?.label || row.category}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 hidden lg:table-cell">
-                    <div className="flex gap-1">
+                  <td className="px-3 py-2 hidden lg:table-cell overflow-hidden">
+                    <div className="flex gap-1 flex-nowrap overflow-hidden">
                       {row.skill_tags?.map(tag => (
-                        <span key={tag} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <span key={tag} className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300 whitespace-nowrap shrink-0">
                           {tag}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">{row.term_en}</td>
-                  <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300 max-w-[180px] truncate">{row.meaning_zh}</td>
-                  <td className="px-3 py-2.5 hidden md:table-cell">
+                  <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100 truncate">{row.term_en}</td>
+                  <td className="px-3 py-2 text-slate-600 dark:text-slate-300 truncate">{row.meaning_zh}</td>
+                  <td className="px-3 py-2 hidden md:table-cell overflow-hidden">
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-slate-400">{row.phonetic}</span>
+                      <span className="text-xs text-slate-400 truncate">{row.phonetic}</span>
                       {row.audio_url && (
-                        <button onClick={e => { e.stopPropagation(); playAudio(row.audio_url); }} className="text-slate-300 hover:text-blue-500 transition-colors text-sm">🔊</button>
+                        <button onClick={e => { e.stopPropagation(); playAudio(row.audio_url); }} className="text-slate-300 hover:text-blue-500 transition-colors text-sm shrink-0">🔊</button>
                       )}
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-slate-400 whitespace-nowrap hidden md:table-cell">{row.next_review}</td>
-                  <td className="px-3 py-2.5">
+                  <td className="px-3 py-2 text-xs text-slate-400 whitespace-nowrap hidden md:table-cell">{row.next_review}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">
                     {row.mastered
-                      ? <span className="text-[10px] bg-green-50 text-green-500 border border-green-100 px-1.5 py-0.5 rounded-full dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">已毕业</span>
-                      : <span className="text-[10px] bg-blue-50 text-blue-500 border border-blue-100 px-1.5 py-0.5 rounded-full dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">学习中</span>
+                      ? <span className="text-[10px] bg-green-50 text-green-500 border border-green-100 px-1.5 py-0.5 rounded-full whitespace-nowrap dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">已毕业</span>
+                      : <span className="text-[10px] bg-blue-50 text-blue-500 border border-blue-100 px-1.5 py-0.5 rounded-full whitespace-nowrap dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">学习中</span>
                     }
                   </td>
-                  <td className="px-2 py-2.5">
+                  <td className="px-2 py-2 whitespace-nowrap">
                     <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={e => { e.stopPropagation(); setEditItem(row); }} className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors rounded" title="编辑">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>

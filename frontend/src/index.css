@@ -11,6 +11,27 @@
     @apply bg-blue-500/20;
   }
 
+  /* App-wide ambient depth — soft color glows anchored to the corners so
+     flat slate surfaces don't read as a single dead-flat plane. Fixed to
+     the viewport (not the scrolling content) so it stays put as pages
+     scroll internally. */
+  .app-shell {
+    background-color: theme('colors.slate.50');
+    background-image:
+      radial-gradient(900px 500px at 8% -8%, rgb(59 130 246 / 0.10), transparent 60%),
+      radial-gradient(700px 460px at 100% 0%, rgb(99 102 241 / 0.08), transparent 55%),
+      radial-gradient(800px 500px at 50% 110%, rgb(56 189 248 / 0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+  .dark .app-shell {
+    background-color: theme('colors.slate.950');
+    background-image:
+      radial-gradient(900px 500px at 8% -8%, rgb(59 130 246 / 0.16), transparent 60%),
+      radial-gradient(700px 460px at 100% 0%, rgb(129 140 248 / 0.14), transparent 55%),
+      radial-gradient(800px 500px at 50% 110%, rgb(56 189 248 / 0.08), transparent 55%);
+    background-attachment: fixed;
+  }
+
   /* Thin, theme-aware scrollbar */
   * {
     scrollbar-width: thin;
@@ -38,13 +59,66 @@ body, nav, main, div, section, header, footer, button, input, textarea, select, 
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-/* Tailwind's preflight strips list-style/margin from ol/ul — restore it
-   scoped to rich-text content (template editor + read-only display) so
-   execCommand-generated lists actually render as lists. */
-.rich-content ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
-.rich-content ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; }
-.rich-content li { margin: 0.25rem 0; }
-.rich-content b, .rich-content strong { font-weight: 700; }
-.rich-content u { text-decoration: underline; }
-.rich-content img { max-width: 100%; border-radius: 8px; margin: 8px 0; display: block; }
-.rich-content p { margin: 0.5rem 0; }
+/* ---------- Shared surface language ----------
+   A layered, slightly-lifted shadow (a tight contact shadow + a soft diffuse
+   one) reads as real depth instead of the single flat drop-shadow that
+   `shadow-sm` gives — this is the one recipe every card in the app should
+   converge on so the UI stops looking like a stack of identical flat boxes. */
+.card-surface {
+  background-color: rgb(255 255 255 / 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgb(241 245 249 / 0.9); /* slate-100 */
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 10px 28px -14px rgb(15 23 42 / 0.16);
+  /* Cards live inside `flex flex-col` columns meant to scroll (not shrink)
+     when their content outgrows the viewport — without this, flexbox's
+     default shrink:1 silently compresses cards instead of letting the
+     column's overflow-y:auto do its job. */
+  flex-shrink: 0;
+}
+.dark .card-surface {
+  background-color: rgb(30 41 59 / 0.72); /* slate-800 */
+  border-color: rgb(51 65 85 / 0.6); /* slate-700 */
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 14px 32px -16px rgb(0 0 0 / 0.6);
+}
+.card-interactive {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 20px 36px -16px rgb(15 23 42 / 0.22);
+}
+.dark .card-interactive:hover {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.4),
+    0 22px 40px -18px rgb(0 0 0 / 0.7);
+}
+
+/* Primary action buttons — a subtle vertical gradient + soft color-matched
+   glow instead of a flat fill, with a gentle press-down on click. */
+.btn-glow {
+  background-image: linear-gradient(to bottom, rgb(96 165 250), rgb(37 99 235));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    0 8px 20px -6px rgb(37 99 235 / 0.5);
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.btn-glow:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.25),
+    0 10px 24px -6px rgb(37 99 235 / 0.6);
+}
+.btn-glow:active {
+  transform: scale(0.98);
+}
+.btn-glow:disabled {
+  filter: grayscale(0.3);
+  box-shadow: none;
+}

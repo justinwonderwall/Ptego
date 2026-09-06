@@ -27,6 +27,8 @@ export const api = {
   getAccuracy: (range, opts = {}) => request(`/practice/logs/accuracy?${new URLSearchParams({ range, ...opts })}`),
   getStreak: ()           => request('/practice/logs/streak'),
   getTaskLogs: (taskTypeId) => request('/practice/logs?' + new URLSearchParams({ task_type_id: taskTypeId })),
+  parsePracticeScreenshot: (formData) => fetch(BASE + '/practice/logs/parse-screenshot', { method: 'POST', body: formData })
+    .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error); return d; })),
 
   // Knowledge
   extractKnowledge: (formData) => fetch(BASE + '/knowledge/extract', { method: 'POST', body: formData })
@@ -51,4 +53,14 @@ export const api = {
   deleteTemplate: (id)    => request(`/templates/${id}`, { method: 'DELETE' }),
   uploadTemplateImage: (formData) => fetch(BASE + '/templates/upload-image', { method: 'POST', body: formData })
     .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error); return d; })),
+
+  // AI tutor chat
+  chatWithTutor: (formData) => fetch(BASE + '/chat', { method: 'POST', body: formData })
+    .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error); return d; })),
+
+  // Todos
+  getTodos: ()             => request('/todos'),
+  createTodo: (body)       => request('/todos', { method: 'POST', body: JSON.stringify(body) }),
+  updateTodo: (id, b)      => request(`/todos/${id}`, { method: 'PUT', body: JSON.stringify(b) }),
+  deleteTodo: (id)         => request(`/todos/${id}`, { method: 'DELETE' }),
 };

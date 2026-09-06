@@ -1,6 +1,29 @@
 const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
 const router = express.Router();
 const db = require('../db');
+const practiceParser = require('../services/practiceParser');
+
+const upload = multer({ dest: require('os').tmpdir(), limits: { fileSize: 20 * 1024 * 1024 } });
+
+// Screenshot -> AI-read { count, score_pct } to prefill the check-in form —
+// the image is scratch input for the AI call only, deleted right after.
+router.post('/logs/parse-screenshot', upload.single('image'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
+  try {
+    const result = await practiceParser.parseScreenshot({
+      imagePath: req.file.path,
+      mimetype: req.file.mimetype,
+    });
+    res.json(result);
+  } catch (err) {
+    console.error('parse-screenshot error:', err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    fs.unlink(req.file.path, () => {});
+  }
+});
 
 router.post('/logs', (req, res) => {
   const { task_type_id, count = 1, score_pct, note, log_date } = req.body;

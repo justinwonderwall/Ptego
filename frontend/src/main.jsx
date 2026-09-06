@@ -7,6 +7,7 @@ import Review from './pages/Review';
 import Notes from './pages/Notes';
 import { ThemeProvider, useTheme } from './useTheme';
 import { useDueReminder } from './useDueReminder';
+import FloatingAiChat from './components/FloatingAiChat';
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -77,10 +78,10 @@ function NavItem({ to, end, children }) {
       to={to}
       end={end}
       className={({ isActive }) =>
-        `relative px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+        `relative px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
           isActive
-            ? 'bg-blue-500/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400'
-            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800'
+            ? 'bg-gradient-to-b from-blue-500/15 to-blue-500/5 text-blue-600 shadow-[inset_0_0_0_1px_rgb(59_130_246/0.15)] dark:from-blue-400/20 dark:to-blue-400/5 dark:text-blue-300 dark:shadow-[inset_0_0_0_1px_rgb(96_165_250/0.2)]'
+            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-900/5 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/5'
         }`
       }
     >
@@ -93,10 +94,13 @@ function Nav() {
   const { dueCount, supported, enabled, permission, toggle } = useDueReminder();
 
   return (
-    <nav className="shrink-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80
-      border-b border-slate-200/80 dark:border-slate-800 px-6 py-3 flex items-center gap-2">
+    <nav className="shrink-0 z-40 backdrop-blur-md bg-white/70 dark:bg-slate-900/70
+      border-b border-slate-200/70 dark:border-white/[0.06] px-6 py-3 flex items-center gap-2
+      shadow-[0_1px_0_rgb(255_255_255/0.6)_inset,0_8px_24px_-16px_rgb(15_23_42/0.25)]
+      dark:shadow-[0_1px_0_rgb(255_255_255/0.04)_inset,0_8px_24px_-16px_rgb(0_0_0/0.6)]">
       <div className="flex items-center gap-2.5 mr-4">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm shadow-blue-500/30">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center
+          shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_4px_10px_-2px_rgb(59_130_246/0.5)]">
           <span className="text-white text-xs font-extrabold tracking-tight">P</span>
         </div>
         <span className="font-bold text-slate-900 dark:text-white text-[15px] tracking-tight">PTE GO</span>
@@ -128,7 +132,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <div className="app-shell h-screen flex flex-col text-slate-900 dark:text-slate-100">
           <Nav />
           <div className="flex-1 min-h-0 overflow-y-auto">
             <Routes>
@@ -137,6 +141,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/notes"     element={<Notes />} />
             </Routes>
           </div>
+          <FloatingAiChat />
         </div>
       </ThemeProvider>
     </BrowserRouter>

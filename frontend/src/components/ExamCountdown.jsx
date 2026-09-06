@@ -67,7 +67,13 @@ export default function ExamCountdown() {
   const targets = targetBand ? BAND_TARGETS[targetBand] : null;
 
   return (
-    <div className={`bg-gradient-to-br ${urgencyColor || 'from-blue-500 to-indigo-600'} rounded-2xl p-6 text-white shadow-lg shadow-blue-500/10`}>
+    <div className={`shrink-0 relative overflow-hidden bg-gradient-to-br ${urgencyColor || 'from-blue-500 to-indigo-600'} rounded-2xl p-6 text-white
+      shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_20px_44px_-20px_rgb(30_41_59/0.55)]`}>
+      {/* decorative ambient glows — purely visual, sit behind all content */}
+      <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-10 w-64 h-64 rounded-full bg-black/10 blur-3xl" />
+
+      <div className="relative z-10">
       {editing ? (
         <div className="flex items-center gap-3 flex-wrap">
           <input
@@ -170,13 +176,15 @@ export default function ExamCountdown() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }
 
 function ScoreChip({ label, value }) {
   return (
-    <div className="bg-white/15 rounded-lg px-2.5 py-1.5 text-center">
+    <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg px-2.5 py-1.5 text-center
+      transition-transform duration-150 hover:scale-[1.04] hover:bg-white/15">
       <div className="text-[10px] opacity-70">{label}</div>
       <div className="text-base font-bold tabular-nums">{value}</div>
     </div>

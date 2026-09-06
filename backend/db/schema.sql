@@ -57,6 +57,15 @@ CREATE TABLE IF NOT EXISTS templates (
   updated_at    TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS todos (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  content       TEXT NOT NULL,
+  task_type_id  INTEGER REFERENCES task_types(id),
+  done          INTEGER DEFAULT 0,
+  created_at    TEXT DEFAULT (datetime('now')),
+  updated_at    TEXT DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_kp_next_review ON knowledge_points(next_review);
 CREATE INDEX IF NOT EXISTS idx_kp_category   ON knowledge_points(category);
 CREATE INDEX IF NOT EXISTS idx_log_date      ON practice_logs(log_date);

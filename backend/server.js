@@ -19,6 +19,8 @@ app.use('/api/knowledge',  require('./routes/knowledge'));
 app.use('/api/review',     require('./routes/review'));
 app.use('/api/dictionary', require('./routes/dictionary'));
 app.use('/api/templates',  require('./routes/templates'));
+app.use('/api/chat',       require('./routes/chat'));
+app.use('/api/todos',      require('./routes/todos'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

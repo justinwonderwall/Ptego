@@ -96,7 +96,7 @@ export default function AccuracyChart() {
     setSelectedTasks(prev => prev.includes(task) ? prev.filter(t => t !== task) : [...prev, task]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/80 p-5">
+    <div className="card-surface p-5">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h3 className="font-semibold text-slate-900 dark:text-slate-100">阅读正确率趋势</h3>
