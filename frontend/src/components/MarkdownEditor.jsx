@@ -39,7 +39,7 @@ export default function MarkdownEditor({ markdown, onChange, readOnly, editorKey
         readOnly={readOnly}
         contentEditableClassName={readOnly
           ? 'prose prose-slate dark:prose-invert max-w-none px-0 py-2 text-[15px] leading-[1.85]'
-          : 'prose prose-sm dark:prose-invert max-w-none min-h-[320px] max-h-[60vh] overflow-y-auto px-4 py-3 text-sm'
+          : 'prose prose-sm dark:prose-invert max-w-none min-h-[480px] max-h-[75vh] overflow-y-auto px-4 py-3 text-sm'
         }
         plugins={[
           headingsPlugin(),

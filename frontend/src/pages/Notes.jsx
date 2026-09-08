@@ -3,6 +3,7 @@ import { api } from '../api';
 import MarkdownEditor from '../components/MarkdownEditor';
 import ArticleToc from '../components/ArticleToc';
 import ArticleListNav from '../components/ArticleListNav';
+import { exportToDocx, exportToPdf } from '../utils/exportDoc';
 
 const TABS = [
   { key: 'note',     label: '学习笔记', newLabel: '+ 新增笔记',   emptyTitle: '还没有学习笔记', emptyHint: '点击右上角"新增笔记"，记录你总结的做题技巧' },
@@ -37,7 +38,19 @@ export default function Notes() {
   const [mode, setMode] = useState('view'); // 'view' | 'edit'
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const contentRef = useRef(null);
+  const exportMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const onClick = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) setExportOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [exportOpen]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -77,6 +90,20 @@ export default function Notes() {
     setMode('view');
   };
 
+  const runExport = async (format) => {
+    setExportOpen(false);
+    if (!contentRef.current) return;
+    setExporting(true);
+    try {
+      if (format === 'docx') await exportToDocx(active.title, contentRef.current);
+      else exportToPdf(active.title, contentRef.current);
+    } catch (e) {
+      alert('导出失败：' + e.message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const confirmDelete = async () => {
     await api.deleteTemplate(deleteId);
     setDeleteId(null);
@@ -87,20 +114,50 @@ export default function Notes() {
   if (active) {
     const editing = mode === 'edit';
     return (
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <button
-          onClick={back}
-          className="text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 mb-4 flex items-center gap-1"
-        >
-          ← 返回列表
-        </button>
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={back}
+            className="text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 flex items-center gap-1"
+          >
+            ← 返回列表
+          </button>
+
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              onClick={() => setExportOpen(o => !o)}
+              disabled={exporting}
+              className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300
+                hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+            >
+              {exporting ? '导出中…' : '导出'}
+              <span className="text-[10px] text-slate-400">▾</span>
+            </button>
+            {exportOpen && (
+              <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden z-10">
+                <button
+                  onClick={() => runExport('pdf')}
+                  className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  导出为 PDF
+                </button>
+                <button
+                  onClick={() => runExport('docx')}
+                  className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  导出为 Word
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="flex items-start gap-8">
         <div className="hidden lg:flex flex-col gap-6 shrink-0 sticky top-6 self-start">
           <ArticleListNav list={list} active={active} typeLabel={label} onSelect={openExisting} />
           <ArticleToc containerRef={contentRef} watch={`${active.id}-${mode}-${active.content}`} />
         </div>
-        <div className="flex-1 min-w-0 max-w-3xl">
+        <div className="flex-1 min-w-0 max-w-4xl">
 
         {editing ? (
           <div className="flex items-center gap-1.5 mb-3">
