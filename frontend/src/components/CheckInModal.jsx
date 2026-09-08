@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '../api';
 import AccuracyCalculator from './AccuracyCalculator';
 
@@ -79,7 +80,10 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
     if (imgFile) { e.preventDefault(); handleImageFile(imgFile); }
   };
 
-  return (
+  // Portaled to <body>: DailyPlan's card-surface ancestor uses backdrop-filter,
+  // which turns it into the containing block for `fixed` descendants — without
+  // the portal this modal shrinks to the card's box instead of the viewport.
+  return createPortal(
     // pr-[31%] approximates the right knowledge-entry column's width (incl. its
     // gap/padding) so the card centers within the left dashboard column only —
     // pointer-events-none on this wrapper keeps the rest of the page clickable,
@@ -208,6 +212,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
         </>
       )}
     </div>
-    </div>
+    </div>,
+    document.body
   );
 }

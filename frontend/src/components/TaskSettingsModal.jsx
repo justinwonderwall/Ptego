@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '../api';
 
 const SECTIONS = ['Speaking', 'Writing', 'Reading', 'Listening'];
@@ -45,7 +46,10 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
     return acc;
   }, {});
 
-  return (
+  // Portaled to <body>: DailyPlan's card-surface ancestor uses backdrop-filter,
+  // which turns it into the containing block for `fixed` descendants — without
+  // the portal this modal shrinks to the card's box instead of the viewport.
+  return createPortal(
     <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
@@ -140,6 +144,7 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

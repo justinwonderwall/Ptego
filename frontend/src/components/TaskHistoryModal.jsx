@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '../api';
 
 export default function TaskHistoryModal({ task, onClose }) {
@@ -8,7 +9,10 @@ export default function TaskHistoryModal({ task, onClose }) {
     api.getTaskLogs(task.id).then(setLogs);
   }, [task.id]);
 
-  return (
+  // Portaled to <body>: DailyPlan's card-surface ancestor uses backdrop-filter,
+  // which turns it into the containing block for `fixed` descendants — without
+  // the portal this modal shrinks to the card's box instead of the viewport.
+  return createPortal(
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
       <div
         className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[80vh] flex flex-col"
@@ -53,6 +57,7 @@ export default function TaskHistoryModal({ task, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
