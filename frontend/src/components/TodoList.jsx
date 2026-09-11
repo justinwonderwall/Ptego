@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 
 export default function TodoList() {
+  const { t } = useTranslation();
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -55,7 +57,7 @@ export default function TodoList() {
   return (
     <div className="card-surface">
       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700/60 flex items-center gap-2">
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">待办事项</h2>
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{t('home.todoList.title')}</h2>
         {dueCount > 0 && (
           <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1
             bg-red-500 text-white text-[10px] font-bold rounded-full">
@@ -69,7 +71,7 @@ export default function TodoList() {
           <input
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder="添加待办…"
+            placeholder={t('home.todoList.addPlaceholder')}
             className="flex-1 min-w-0 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-sm
               dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400"
           />
@@ -84,7 +86,7 @@ export default function TodoList() {
         </form>
 
         {todos.length === 0 ? (
-          <p className="text-xs text-slate-400 text-center py-4">还没有待办事项</p>
+          <p className="text-xs text-slate-400 text-center py-4">{t('home.todoList.empty')}</p>
         ) : (
           <ul className="space-y-1 max-h-64 overflow-y-auto">
             {todos.map(todo => (
@@ -109,7 +111,11 @@ export default function TodoList() {
                     autoFocus
                     value={editText}
                     onChange={e => setEditText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null); }}
+                    onKeyDown={e => {
+                      if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                      if (e.key === 'Enter') saveEdit();
+                      if (e.key === 'Escape') setEditingId(null);
+                    }}
                     onBlur={saveEdit}
                     className="flex-1 min-w-0 border border-blue-300 rounded px-1.5 py-0.5 text-sm dark:bg-slate-700 dark:text-white focus:outline-none"
                   />

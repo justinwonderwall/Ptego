@@ -14,7 +14,7 @@ router.post('/', upload.single('image'), async (req, res) => {
   } catch (_) { /* ignore malformed history, just start fresh */ }
 
   if (!message?.trim() && !req.file) {
-    return res.status(400).json({ error: '请输入问题或上传截图' });
+    return res.status(400).json({ code: 'MISSING_QUESTION' });
   }
 
   try {
@@ -27,7 +27,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     res.json({ reply });
   } catch (err) {
     console.error('chat error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ code: err.code || 'generic' });
   } finally {
     if (req.file) fs.unlink(req.file.path, () => {});
   }

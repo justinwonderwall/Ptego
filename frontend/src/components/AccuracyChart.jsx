@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
@@ -6,16 +7,8 @@ import {
 import { api } from '../api';
 import { useTheme } from '../useTheme';
 
-const RANGES = [
-  { label: '7天',  value: '7d'  },
-  { label: '30天', value: '30d' },
-  { label: '全部', value: 'all' },
-];
-
-const MODES = [
-  { label: '总的', value: 'total'     },
-  { label: '细项', value: 'breakdown' },
-];
+const RANGE_VALUES = ['7d', '30d', 'all'];
+const MODE_VALUES = ['total', 'breakdown'];
 
 // Each series gets both a color AND a marker shape, so lines stay
 // distinguishable even when two values sit close together (color alone
@@ -54,6 +47,9 @@ function ShapeIcon({ shape, color }) {
 }
 
 export default function AccuracyChart() {
+  const { t } = useTranslation();
+  const RANGES = RANGE_VALUES.map(value => ({ value, label: t(`home.accuracyChart.ranges.${value}`) }));
+  const MODES = MODE_VALUES.map(value => ({ value, label: t(`home.accuracyChart.modes.${value}`) }));
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const gridColor = isDark ? '#334155' : '#f3f4f6';
@@ -99,9 +95,9 @@ export default function AccuracyChart() {
     <div className="card-surface p-5">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100">阅读正确率趋势</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">{t('home.accuracyChart.title')}</h3>
           {avg !== null && !isNaN(avg) && (
-            <p className="text-xs text-slate-400 mt-0.5">期间平均 {avg}%</p>
+            <p className="text-xs text-slate-400 mt-0.5">{t('home.accuracyChart.periodAvg', { avg })}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -169,7 +165,7 @@ export default function AccuracyChart() {
 
       {data.length === 0 ? (
         <div className="h-40 flex items-center justify-center text-slate-300 dark:text-slate-600 text-sm">
-          暂无数据——打卡阅读题型时填写正确率后显示
+          {t('home.accuracyChart.noData')}
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={mode === 'breakdown' ? 200 : 180}>
@@ -189,7 +185,7 @@ export default function AccuracyChart() {
               tickFormatter={v => `${v}%`}
             />
             <Tooltip
-              formatter={(v, name) => [`${v}%`, mode === 'breakdown' ? name : '正确率']}
+              formatter={(v, name) => [`${v}%`, mode === 'breakdown' ? name : t('home.accuracyChart.accuracyLabel')]}
               contentStyle={{
                 fontSize: 12,
                 background: isDark ? '#1e293b' : '#fff',

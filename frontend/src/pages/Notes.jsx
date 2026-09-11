@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import MarkdownEditor from '../components/MarkdownEditor';
 import ArticleToc from '../components/ArticleToc';
 import ArticleListNav from '../components/ArticleListNav';
 import { exportToDocx, exportToPdf } from '../utils/exportDoc';
 
-const TABS = [
-  { key: 'note',     label: '学习笔记', newLabel: '+ 新增笔记',   emptyTitle: '还没有学习笔记', emptyHint: '点击右上角"新增笔记"，记录你总结的做题技巧' },
-  { key: 'template', label: '模板',    newLabel: '+ 新增模板',   emptyTitle: '还没有模板',    emptyHint: '点击右上角"新增模板"，记录你的备考套路、DI 案例等' },
-];
+const TAB_KEYS = ['note', 'template'];
 
 // Strips both leftover HTML (older notes saved before the markdown editor)
 // and common Markdown syntax markers, for a plain-text list preview.
@@ -31,6 +29,14 @@ const formatDate = (iso) => {
 };
 
 export default function Notes() {
+  const { t } = useTranslation();
+  const TABS = TAB_KEYS.map(key => ({
+    key,
+    label: t(`notes.tabs.${key}.label`),
+    newLabel: t(`notes.tabs.${key}.newLabel`),
+    emptyTitle: t(`notes.tabs.${key}.emptyTitle`),
+    emptyHint: t(`notes.tabs.${key}.emptyHint`),
+  }));
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('note');
@@ -63,11 +69,11 @@ export default function Notes() {
   const openExisting = (item) => { setActive({ ...item }); setMode('view'); };
   const back = () => setActive(null);
 
-  const activeMeta = TABS.find(t => t.key === (active?.type || tab));
-  const label = activeMeta?.label || '笔记';
+  const activeMeta = TABS.find(tb => tb.key === (active?.type || tab));
+  const label = activeMeta?.label || t('notes.defaultLabel');
 
   const publish = async () => {
-    if (!active.title.trim()) { alert('请输入标题'); return; }
+    if (!active.title.trim()) { alert(t('notes.titleRequiredAlert')); return; }
     setSaving(true);
     try {
       const saved = active.id === 'new'
@@ -77,7 +83,7 @@ export default function Notes() {
       setMode('view');
       await load();
     } catch (e) {
-      alert('保存失败：' + e.message);
+      alert(t('notes.saveFailedAlert', { message: e.message }));
     } finally {
       setSaving(false);
     }
@@ -95,10 +101,11 @@ export default function Notes() {
     if (!contentRef.current) return;
     setExporting(true);
     try {
-      if (format === 'docx') await exportToDocx(active.title, contentRef.current);
-      else exportToPdf(active.title, contentRef.current);
+      const exportTitle = active.title || t('notes.untitled');
+      if (format === 'docx') await exportToDocx(exportTitle, contentRef.current);
+      else exportToPdf(exportTitle, contentRef.current);
     } catch (e) {
-      alert('导出失败：' + e.message);
+      alert(t('notes.exportFailedAlert', { message: e.message }));
     } finally {
       setExporting(false);
     }
@@ -120,7 +127,7 @@ export default function Notes() {
             onClick={back}
             className="text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 flex items-center gap-1"
           >
-            ← 返回列表
+            {t('notes.backToList')}
           </button>
 
           <div className="relative" ref={exportMenuRef}>
@@ -130,7 +137,7 @@ export default function Notes() {
               className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300
                 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1"
             >
-              {exporting ? '导出中…' : '导出'}
+              {exporting ? t('notes.exporting') : t('notes.export')}
               <span className="text-[10px] text-slate-400">▾</span>
             </button>
             {exportOpen && (
@@ -139,13 +146,13 @@ export default function Notes() {
                   onClick={() => runExport('pdf')}
                   className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  导出为 PDF
+                  {t('notes.exportPdf')}
                 </button>
                 <button
                   onClick={() => runExport('docx')}
                   className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  导出为 Word
+                  {t('notes.exportWord')}
                 </button>
               </div>
             )}
@@ -161,18 +168,18 @@ export default function Notes() {
 
         {editing ? (
           <div className="flex items-center gap-1.5 mb-3">
-            {TABS.map(t => (
+            {TABS.map(tb => (
               <button
-                key={t.key}
+                key={tb.key}
                 type="button"
-                onClick={() => setActive(a => ({ ...a, type: t.key }))}
+                onClick={() => setActive(a => ({ ...a, type: tb.key }))}
                 className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${
-                  active.type === t.key
+                  active.type === tb.key
                     ? 'bg-blue-500 text-white border-blue-500'
                     : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-300'
                 }`}
               >
-                {t.label}
+                {tb.label}
               </button>
             ))}
           </div>
@@ -190,7 +197,7 @@ export default function Notes() {
           <input
             value={active.title}
             onChange={e => setActive(a => ({ ...a, title: e.target.value }))}
-            placeholder={active.type === 'note' ? '笔记标题…' : '模板标题…'}
+            placeholder={active.type === 'note' ? t('notes.titlePlaceholderNote') : t('notes.titlePlaceholderTemplate')}
             className="w-full text-2xl font-bold text-slate-900 dark:text-slate-100 bg-transparent border-0 border-b-2
               border-transparent focus:border-blue-400 focus:outline-none pb-2 mb-4 placeholder:text-slate-300 dark:placeholder:text-slate-600"
           />
@@ -204,12 +211,12 @@ export default function Notes() {
               onClick={() => setMode('edit')}
               className="font-medium text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
-              编辑
+              {t('common.edit')}
             </button>
             {active.updated_at && (
               <>
                 <span className="text-slate-200 dark:text-slate-700">·</span>
-                <span>最后保存：{formatDate(active.updated_at)}</span>
+                <span>{t('notes.lastSaved', { date: formatDate(active.updated_at) })}</span>
               </>
             )}
             <span className="text-slate-200 dark:text-slate-700">·</span>
@@ -217,7 +224,7 @@ export default function Notes() {
               onClick={() => setDeleteId(active.id)}
               className="font-medium text-red-400 hover:text-red-500 transition-colors"
             >
-              删除文章
+              {t('notes.deleteArticle')}
             </button>
           </div>
         )}
@@ -238,14 +245,14 @@ export default function Notes() {
               className="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium
                 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              取消
+              {t('common.cancel')}
             </button>
             <button
               onClick={publish}
               disabled={saving}
               className="btn-glow px-5 py-2 text-white rounded-lg text-sm font-semibold disabled:cursor-not-allowed"
             >
-              {saving ? '发布中…' : '发布'}
+              {saving ? t('notes.publishing') : t('notes.publish')}
             </button>
           </div>
         )}
@@ -253,11 +260,11 @@ export default function Notes() {
         {deleteId && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setDeleteId(null)}>
             <div className="card-surface !bg-white dark:!bg-slate-800 shadow-xl p-6 w-72 text-center space-y-4" onClick={e => e.stopPropagation()}>
-              <p className="font-medium text-slate-900 dark:text-slate-100">确认删除该文章？</p>
-              <p className="text-sm text-slate-400">此操作无法撤销</p>
+              <p className="font-medium text-slate-900 dark:text-slate-100">{t('notes.deleteConfirmTitle')}</p>
+              <p className="text-sm text-slate-400">{t('common.confirmDeleteHint')}</p>
               <div className="flex gap-2">
-                <button onClick={confirmDelete} className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-2.5 text-sm font-semibold transition-colors">删除</button>
-                <button onClick={() => setDeleteId(null)} className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">取消</button>
+                <button onClick={confirmDelete} className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg py-2.5 text-sm font-semibold transition-colors">{t('common.delete')}</button>
+                <button onClick={() => setDeleteId(null)} className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">{t('common.cancel')}</button>
               </div>
             </div>
           </div>
@@ -269,24 +276,24 @@ export default function Notes() {
   }
 
   const filtered = list.filter(item => (item.type || 'template') === tab);
-  const activeTabMeta = TABS.find(t => t.key === tab);
+  const activeTabMeta = TABS.find(tb => tb.key === tab);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       {/* Tab bar */}
       <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-700">
         <div className="flex gap-0">
-          {TABS.map(t => (
+          {TABS.map(tb => (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
+              key={tb.key}
+              onClick={() => setTab(tb.key)}
               className={`relative px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                tab === t.key
+                tab === tb.key
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
-              {t.label}
+              {tb.label}
             </button>
           ))}
         </div>
@@ -299,7 +306,7 @@ export default function Notes() {
       </div>
 
       {loading ? (
-        <div className="text-center text-slate-400 py-20">加载中…</div>
+        <div className="text-center text-slate-400 py-20">{t('common.loading')}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-24">
           <div className="text-5xl mb-4">📝</div>

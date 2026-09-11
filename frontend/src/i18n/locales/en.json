@@ -1,0 +1,343 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "save": "Save",
+    "edit": "Edit",
+    "confirmDelete": "Confirm deletion?",
+    "confirmDeleteHint": "This action cannot be undone",
+    "loading": "Loading…",
+    "submit": "Submit",
+    "close": "Close",
+    "back": "Back",
+    "add": "Add",
+    "all": "All",
+    "markImportant": "Mark as important",
+    "unmarkImportant": "Unmark as important",
+    "importantFilter": "⭐ Important"
+  },
+  "nav": {
+    "home": "Home",
+    "review": "Review",
+    "notes": "Notes",
+    "brand": "PTE GO"
+  },
+  "theme": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode",
+    "toggleAria": "Toggle theme"
+  },
+  "language": {
+    "toggleAria": "Switch language",
+    "toggleTitle": "Switch to Chinese interface",
+    "toZh": "切换到中文界面",
+    "toEn": "Switch to English"
+  },
+  "notify": {
+    "blocked": "Notification permission was denied by the browser. Enable it in your browser's site settings.",
+    "onToDisable": "Review reminders are on — click to turn off",
+    "onHint": "Enable desktop reminders for due reviews",
+    "aria": "Review reminders"
+  },
+  "errors": {
+    "MISSING_QUESTION": "Please enter a question or upload a screenshot",
+    "EMPTY_PDF_CONTENT": "The PDF has no extractable text — it may be a scanned image PDF. Please upload it as an image instead.",
+    "EMPTY_DOCX_CONTENT": "The Word document has no extractable text",
+    "UNSUPPORTED_DOC_FORMAT": "The legacy .doc format isn't supported yet — please save it as .docx in Word and re-upload",
+    "UNSUPPORTED_FILE_TYPE": "Unsupported file type — please check the file format and try again",
+    "SCREENSHOT_PARSE_FAILED": "The AI could not read this screenshot. Please try again or enter the data manually.",
+    "AI_RESPONSE_MALFORMED": "The AI response was malformed — please try again",
+    "AI_RESPONSE_TOO_LONG": "The content was too long and the AI response was truncated. Please submit shorter batches and try again.",
+    "AI_RESPONSE_UNPARSEABLE": "Failed to parse the AI response — please try again",
+    "generic": "Something went wrong. Please try again."
+  },
+  "dueReminder": {
+    "notifyTitle": "PTE GO · Review Reminder",
+    "notifyBody": "You have {{count}} knowledge points due for review.",
+    "confirmTitle": "PTE GO",
+    "confirmBody": "Review reminders are on — you'll be notified here when items are due."
+  },
+  "categories": {
+    "grammar": "Grammar",
+    "word_sense": "Word Sense",
+    "collocation": "Collocation",
+    "polysemy": "Polysemy",
+    "all": "All"
+  },
+  "vocabTypes": {
+    "all": "All Vocab Lists",
+    "pronunciation": "Pronunciation",
+    "spelling": "Spelling",
+    "reading": "Reading"
+  },
+  "mistakeFilters": {
+    "due": "Due",
+    "important": "⭐ Important"
+  },
+  "mastery": {
+    "mastered": "Mastered",
+    "learning": "Learning"
+  },
+  "review": {
+    "tabs": {
+      "overview": "Overview",
+      "quiz": "Quiz",
+      "mistakes": "Mistake Book"
+    },
+    "overview": {
+      "emptyTitle": "No knowledge points yet",
+      "emptyHint": "Go to Home and click the + button to add your first one",
+      "searchPlaceholder": "Search words…",
+      "totalCount": "{{count}} knowledge points",
+      "noMatch": "No matching knowledge points",
+      "columns": {
+        "category": "Category",
+        "tags": "Tags",
+        "english": "English",
+        "chineseMeaning": "Meaning",
+        "phonetic": "Phonetic",
+        "nextReview": "Next Review",
+        "status": "Status"
+      }
+    },
+    "quiz": {
+      "dueCount": "<b>{{count}}</b> due for review",
+      "completedCount": "· {{count}} completed",
+      "selfMode": "Self-grading",
+      "inputMode": "Typing mode",
+      "inputPlaceholderZh": "Type the Chinese meaning…",
+      "inputPlaceholderEn": "Type the English…",
+      "viewAnswer": "Reveal",
+      "yourAnswer": "Your answer:",
+      "notFilled": "(not filled in)",
+      "flip": "Flip",
+      "flipHint": "[Space]",
+      "prevAria": "Previous card",
+      "nextAria": "Next card",
+      "dontKnow": "Not yet",
+      "know": "Mastered ✓",
+      "doneTitle": "Today's review is complete!",
+      "doneCount": "Completed {{count}} knowledge points",
+      "hintListen": "1 Not yet · 2 Mastered",
+      "hintFull": "Space Flip · 1 Not yet · 2 Mastered"
+    },
+    "mistakeBook": {
+      "emptyTitle": "No mistakes recorded yet",
+      "emptyHint": "Include the question number in the screenshot when logging practice; results below 50% accuracy are automatically added here.",
+      "totalCount": "{{count}} entries",
+      "noMatch": "No matching entries",
+      "columns": {
+        "type": "Type",
+        "questionNo": "Question #",
+        "practiceRecord": "Practice Record",
+        "nextReview": "Next Review",
+        "status": "Status"
+      },
+      "copyTitle": "Click to copy question number",
+      "copied": "Copied",
+      "dueSuffix": "· Due",
+      "markMasteredTitle": "Mark as mastered",
+      "deleteConfirmTitle": "Delete this mistake entry?"
+    }
+  },
+  "notes": {
+    "tabs": {
+      "note": { "label": "Notes", "newLabel": "+ New Note", "emptyTitle": "No notes yet", "emptyHint": "Click \"New Note\" in the top right to record the techniques you've learned" },
+      "template": { "label": "Templates", "newLabel": "+ New Template", "emptyTitle": "No templates yet", "emptyHint": "Click \"New Template\" in the top right to record your exam strategies, DI examples, and more" }
+    },
+    "defaultLabel": "Notes",
+    "untitled": "Untitled",
+    "backToList": "← Back to list",
+    "exporting": "Exporting…",
+    "export": "Export",
+    "exportPdf": "Export as PDF",
+    "exportWord": "Export as Word",
+    "titlePlaceholderNote": "Note title…",
+    "titlePlaceholderTemplate": "Template title…",
+    "lastSaved": "Last saved: {{date}}",
+    "deleteArticle": "Delete article",
+    "publishing": "Publishing…",
+    "publish": "Publish",
+    "deleteConfirmTitle": "Delete this article?",
+    "titleRequiredAlert": "Please enter a title",
+    "saveFailedAlert": "Save failed: {{message}}",
+    "exportFailedAlert": "Export failed: {{message}}"
+  },
+  "articleToc": {
+    "navTitle": "Contents"
+  },
+  "articleListNav": {
+    "noTitle": "(Untitled)"
+  },
+  "checkIn": {
+    "mistakeAdded": "⚠️ Accuracy below 50% — added to the mistake book",
+    "mistakeUpdated": "📌 This entry's redo record has been updated",
+    "mistakeMastered": "🎉 Correct twice in a row — this item has been cleared from the mistake book",
+    "errInvalidCount": "Please enter a valid question count",
+    "errInvalidScore": "Accuracy must be between 0–100",
+    "errNoDataRecognized": "The AI could not read the data from this screenshot — please enter it manually",
+    "aiRecognizedFilled": "AI recognition complete — fields filled in automatically",
+    "todayProgress": "{{done}} done today / target {{target}}",
+    "dueTodayLabel": "Due for redo today (click to fill in the question number)",
+    "recognizing": "AI recognizing…",
+    "pasteHint": "📋 Paste a screenshot (Ctrl+V) to auto-fill with AI",
+    "countLabel": "Questions completed",
+    "scoreLabel": "Accuracy %",
+    "scoreHint": "(optional, used for the trend chart)",
+    "calcTool": "🧮 Calculator",
+    "scorePlaceholder": "0 – 100",
+    "questionNoPlaceholder": "Question # (optional)",
+    "questionNoTitle": "If a question number is set, accuracy below 50% automatically adds it to the mistake book, with redo reminders on a spaced-repetition schedule",
+    "noteLabel": "Notes",
+    "noteHint": "(optional)",
+    "notePlaceholder": "Notes on today's practice or issues encountered",
+    "submitting": "Submitting…"
+  },
+  "knowledge": {
+    "fields": {
+      "category": "Category",
+      "termEn": "English Word / Phrase",
+      "meaningZh": "Meaning",
+      "example": "Example",
+      "studyNote": "Study Note",
+      "tags": "Tags"
+    },
+    "saving": "Saving…",
+    "confirmModal": {
+      "title": "Confirm Knowledge Points",
+      "subtitle": "The AI extracted {{count}} knowledge points",
+      "entryProgress": "Entry {{current}} / {{total}}",
+      "prevAria": "Previous entry",
+      "nextAria": "Next entry",
+      "skipEntry": "Skip (don't save)",
+      "confirmEntry": "Save this entry",
+      "saveAllRemaining": "Save all {{count}} remaining",
+      "emptyAllDeleted": "All entries removed",
+      "backToEdit": "← Back to edit",
+      "confirmButton": "Save ({{count}})"
+    },
+    "editModal": {
+      "title": "Edit Knowledge Point"
+    }
+  },
+  "taskSettings": {
+    "dailyLabel": "Daily",
+    "questionUnit": "questions"
+  },
+  "taskHistory": {
+    "subtitle": "Practice History",
+    "empty": "No practice records yet",
+    "questionUnit": "questions"
+  },
+  "aiChat": {
+    "floating": {
+      "buttonTitle": "AI Learning Assistant",
+      "buttonAria": "Open AI chat",
+      "windowTitle": "🎓 AI Learning Assistant"
+    },
+    "tutorChat": {
+      "emptyPrompt": "Ask the AI Learning Assistant about grammar, word usage, or collocations — type or paste a screenshot.",
+      "thinking": "Thinking…",
+      "inputPlaceholder": "Ask the AI Learning Assistant, or paste a screenshot…",
+      "uploadScreenshotTitle": "Upload screenshot",
+      "send": "Send",
+      "extractLabel": "Extract knowledge points from this conversation — category (multiple allowed)",
+      "extracting": "Extracting…",
+      "extractButton": "📚 Extract Knowledge Points",
+      "errNoCategorySelected": "Please select at least one category to extract",
+      "errNoExtraction": "No knowledge points could be extracted from this conversation"
+    }
+  },
+  "wordPopup": {
+    "noteLabel": "Notes (optional)",
+    "notePlaceholder": "Add a personal note…",
+    "notFound": "Word not found",
+    "querying": "Looking up…",
+    "savedToVocab": "Added to vocabulary ✓",
+    "addToVocabLabel": "Add to vocabulary:",
+    "dictDefinitionsLabel": "Dictionary Definitions",
+    "noEntry": "No entry found",
+    "referenceExampleLabel": "Reference Example",
+    "noExample": "No example available"
+  },
+  "dictionaryLookup": {
+    "lookupTitle": "Look up \"{{word}}\""
+  },
+  "dictionaryQuickAdd": {
+    "placeholder": "Search the dictionary… enter an English word",
+    "search": "Search"
+  },
+  "accuracyCalculator": {
+    "title": "Accuracy Calculator",
+    "subtitle": "Enter correct / incorrect counts for each group — multiple groups accumulate",
+    "groupLabel": "Group {{n}}",
+    "correctLabel": "Correct",
+    "wrongLabel": "Wrong",
+    "addGroup": "+ Add group",
+    "summary": "{{total}} total · {{correct}} correct · {{wrong}} wrong",
+    "calculateAndReturn": "Calculate and return"
+  },
+  "home": {
+    "examCountdown": {
+      "daysUnit": "days",
+      "untilExam": "until the PTE exam",
+      "noDateSet": "No exam date set",
+      "examDateLabel": "Exam date: {{date}}",
+      "editDate": "Edit date",
+      "setDate": "Set exam date",
+      "postponePrompt": "Only {{count}} days remain before the exam. If your review is behind schedule, consider rescheduling.",
+      "keepDate": "Keep the current date",
+      "targetScoreLabel": "Target score (IELTS-equivalent)",
+      "ieltsBand": "IELTS {{band}}",
+      "skills": {
+        "speaking": "Speaking",
+        "writing": "Writing",
+        "reading": "Reading",
+        "listening": "Listening"
+      }
+    },
+    "dailyPlan": {
+      "todayDone": "Today",
+      "streak": "🔥 {{count}}-day streak",
+      "longestStreak": "(best {{count}} days)",
+      "editPlanTitle": "Edit practice plan",
+      "historyTitle": "View practice history",
+      "logButton": "Log Practice",
+      "loggedToast": "Logged ✓",
+      "planUpdatedToast": "Plan updated ✓"
+    },
+    "accuracyChart": {
+      "title": "Reading Accuracy Trend",
+      "periodAvg": "Period average {{avg}}%",
+      "noData": "No data yet — log Reading practice to see the trend",
+      "accuracyLabel": "Accuracy",
+      "ranges": { "7d": "7d", "30d": "30d", "all": "All" },
+      "modes": { "total": "Overall", "breakdown": "By task" }
+    },
+    "todoList": {
+      "title": "To-Do List",
+      "addPlaceholder": "Add a to-do…",
+      "empty": "No to-dos yet"
+    },
+    "addKnowledgePanel": {
+      "title": "Add Knowledge Point",
+      "contentLabel": "Content",
+      "contentHint": "(Ctrl+V to paste a screenshot)",
+      "contentPlaceholder": "Type or paste a word, sentence, or passage to organize…",
+      "uploadLabel": "Upload File",
+      "imageLabel": "Image",
+      "imageFormats": "PNG·JPG",
+      "fileLabel": "File",
+      "fileFormats": "PDF·Word·TXT·MD",
+      "categoryLabel": "Category",
+      "categoryHint": "(multiple allowed)",
+      "errNoCategory": "Please select at least one category",
+      "errNoContent": "Please enter content or upload a file",
+      "errNoExtraction": "No knowledge points were extracted — please adjust the content and try again",
+      "savedMsg": "Saved {{count}} knowledge points ✓",
+      "aiOrganizing": "AI organizing…",
+      "aiOrganize": "✨  AI Organize"
+    }
+  }
+}

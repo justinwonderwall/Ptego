@@ -1,0 +1,343 @@
+{
+  "common": {
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "save": "保存",
+    "edit": "编辑",
+    "confirmDelete": "确认删除？",
+    "confirmDeleteHint": "此操作无法撤销",
+    "loading": "加载中…",
+    "submit": "提交",
+    "close": "关闭",
+    "back": "返回",
+    "add": "添加",
+    "all": "全部",
+    "markImportant": "标记为重点",
+    "unmarkImportant": "取消重点标记",
+    "importantFilter": "⭐ 重点"
+  },
+  "nav": {
+    "home": "首页",
+    "review": "复习",
+    "notes": "笔记",
+    "brand": "PTE GO"
+  },
+  "theme": {
+    "toLight": "切换到浅色模式",
+    "toDark": "切换到深色模式",
+    "toggleAria": "切换主题"
+  },
+  "language": {
+    "toggleAria": "切换语言",
+    "toggleTitle": "切换到英文界面",
+    "toZh": "切换到中文界面",
+    "toEn": "Switch to English"
+  },
+  "notify": {
+    "blocked": "通知权限已被浏览器拒绝，请在浏览器网站设置中开启",
+    "onToDisable": "复习提醒已开启，点击关闭",
+    "onHint": "开启复习到期的桌面提醒",
+    "aria": "复习提醒"
+  },
+  "errors": {
+    "MISSING_QUESTION": "请输入问题或上传截图",
+    "EMPTY_PDF_CONTENT": "PDF 内容为空，可能是扫描版图片 PDF，请改用图片上传",
+    "EMPTY_DOCX_CONTENT": "Word 文档内容为空",
+    "UNSUPPORTED_DOC_FORMAT": "暂不支持旧版 .doc 格式，请在 Word 中另存为 .docx 后重新上传",
+    "UNSUPPORTED_FILE_TYPE": "不支持的文件类型，请检查文件格式后重试",
+    "SCREENSHOT_PARSE_FAILED": "AI 未能识别该截图，请重试或手动填写",
+    "AI_RESPONSE_MALFORMED": "AI 返回内容格式异常，请重试",
+    "AI_RESPONSE_TOO_LONG": "内容过长导致 AI 响应被截断，请缩减单次提交的内容量（可分段提交）后重试",
+    "AI_RESPONSE_UNPARSEABLE": "AI 返回内容解析失败，请重试",
+    "generic": "操作失败，请重试"
+  },
+  "dueReminder": {
+    "notifyTitle": "PTE GO · 复习提醒",
+    "notifyBody": "您有 {{count}} 个知识点待复习，请及时巩固",
+    "confirmTitle": "PTE GO",
+    "confirmBody": "复习提醒已开启，到期的知识点将在此提示"
+  },
+  "categories": {
+    "grammar": "语法",
+    "word_sense": "词义辨析",
+    "collocation": "固定搭配",
+    "polysemy": "多义词",
+    "all": "全部"
+  },
+  "vocabTypes": {
+    "all": "全部生词本",
+    "pronunciation": "发音",
+    "spelling": "拼写",
+    "reading": "阅读"
+  },
+  "mistakeFilters": {
+    "due": "待重做",
+    "important": "⭐ 重点"
+  },
+  "mastery": {
+    "mastered": "已掌握",
+    "learning": "学习中"
+  },
+  "review": {
+    "tabs": {
+      "overview": "总览",
+      "quiz": "检测",
+      "mistakes": "错题集"
+    },
+    "overview": {
+      "emptyTitle": "还没有知识点",
+      "emptyHint": "回到首页，点击右下角 + 录入第一条",
+      "searchPlaceholder": "搜索英文或中文…",
+      "totalCount": "共 {{count}} 个知识点",
+      "noMatch": "没有匹配的知识点",
+      "columns": {
+        "category": "分类",
+        "tags": "标签",
+        "english": "英文",
+        "chineseMeaning": "中文解释",
+        "phonetic": "音标",
+        "nextReview": "下次复习",
+        "status": "状态"
+      }
+    },
+    "quiz": {
+      "dueCount": "待复习 <b>{{count}}</b> 个",
+      "completedCount": "· 已完成 {{count}}",
+      "selfMode": "自评模式",
+      "inputMode": "输入模式",
+      "inputPlaceholderZh": "输入中文解释…",
+      "inputPlaceholderEn": "输入英文…",
+      "viewAnswer": "查看",
+      "yourAnswer": "你的答案：",
+      "notFilled": "（未填写）",
+      "flip": "翻牌",
+      "flipHint": "[空格]",
+      "prevAria": "上一张",
+      "nextAria": "下一张",
+      "dontKnow": "未掌握",
+      "know": "已掌握 ✓",
+      "doneTitle": "今日复习完成！",
+      "doneCount": "共完成 {{count}} 个知识点",
+      "hintListen": "1 未掌握 · 2 已掌握",
+      "hintFull": "空格 翻牌 · 1 未掌握 · 2 已掌握"
+    },
+    "mistakeBook": {
+      "emptyTitle": "还没有错题",
+      "emptyHint": "提交练习记录时请在截图中包含题号；正确率低于 50% 将自动收录至此处",
+      "totalCount": "共 {{count}} 条",
+      "noMatch": "没有匹配的错题",
+      "columns": {
+        "type": "类型",
+        "questionNo": "题号",
+        "practiceRecord": "练习记录",
+        "nextReview": "下次复习",
+        "status": "状态"
+      },
+      "copyTitle": "点击复制题号",
+      "copied": "已复制",
+      "dueSuffix": "· 待重做",
+      "markMasteredTitle": "标记已掌握",
+      "deleteConfirmTitle": "确认删除这条错题？"
+    }
+  },
+  "notes": {
+    "tabs": {
+      "note": { "label": "学习笔记", "newLabel": "+ 新增笔记", "emptyTitle": "还没有学习笔记", "emptyHint": "点击右上角“新增笔记”，记录你总结的做题技巧" },
+      "template": { "label": "模板", "newLabel": "+ 新增模板", "emptyTitle": "还没有模板", "emptyHint": "点击右上角“新增模板”，记录你的备考套路、DI 案例等" }
+    },
+    "defaultLabel": "笔记",
+    "untitled": "未命名",
+    "backToList": "← 返回列表",
+    "exporting": "导出中…",
+    "export": "导出",
+    "exportPdf": "导出为 PDF",
+    "exportWord": "导出为 Word",
+    "titlePlaceholderNote": "笔记标题…",
+    "titlePlaceholderTemplate": "模板标题…",
+    "lastSaved": "最后保存：{{date}}",
+    "deleteArticle": "删除文章",
+    "publishing": "发布中…",
+    "publish": "发布",
+    "deleteConfirmTitle": "确认删除该文章？",
+    "titleRequiredAlert": "请输入标题",
+    "saveFailedAlert": "保存失败：{{message}}",
+    "exportFailedAlert": "导出失败：{{message}}"
+  },
+  "articleToc": {
+    "navTitle": "文章导航"
+  },
+  "articleListNav": {
+    "noTitle": "（无标题）"
+  },
+  "checkIn": {
+    "mistakeAdded": "⚠️ 正确率低于 50%，已加入错题集",
+    "mistakeUpdated": "📌 错题集里的这道题已更新重做记录",
+    "mistakeMastered": "🎉 已连续两次达到目标正确率，该题已从错题集移除",
+    "errInvalidCount": "请输入有效题数",
+    "errInvalidScore": "正确率须在 0–100 之间",
+    "errNoDataRecognized": "AI 未能从截图中识别数据，请手动填写",
+    "aiRecognizedFilled": "AI 识别完成，已自动填写",
+    "todayProgress": "今日已完成 {{done}} / 目标 {{target}}",
+    "dueTodayLabel": "今天要重做（点击填入题号）",
+    "recognizing": "AI 识别中…",
+    "pasteHint": "📋 粘贴截图（Ctrl+V）可由 AI 自动填写",
+    "countLabel": "完成题数",
+    "scoreLabel": "正确率 %",
+    "scoreHint": "（可选，用于趋势图）",
+    "calcTool": "🧮 计算工具",
+    "scorePlaceholder": "0 – 100",
+    "questionNoPlaceholder": "题号（可选）",
+    "questionNoTitle": "填了题号，正确率低于 50% 会自动进错题集，按艾宾浩斯曲线提醒重做",
+    "noteLabel": "备注",
+    "noteHint": "（可选）",
+    "notePlaceholder": "记录今日练习情况或遇到的问题",
+    "submitting": "提交中…"
+  },
+  "knowledge": {
+    "fields": {
+      "category": "分类",
+      "termEn": "英文词 / 短语",
+      "meaningZh": "中文解释",
+      "example": "例句",
+      "studyNote": "学习笔记",
+      "tags": "标签"
+    },
+    "saving": "保存中…",
+    "confirmModal": {
+      "title": "确认知识点",
+      "subtitle": "AI 提取了 {{count}} 个知识点",
+      "entryProgress": "第 {{current}} / {{total}} 条",
+      "prevAria": "上一条",
+      "nextAria": "下一条",
+      "skipEntry": "跳过（不保存）",
+      "confirmEntry": "确认保存此条",
+      "saveAllRemaining": "一键保存剩余 {{count}} 条",
+      "emptyAllDeleted": "已删除全部条目",
+      "backToEdit": "← 返回修改",
+      "confirmButton": "确认入库（{{count}}）"
+    },
+    "editModal": {
+      "title": "编辑知识点"
+    }
+  },
+  "taskSettings": {
+    "dailyLabel": "每日",
+    "questionUnit": "题"
+  },
+  "taskHistory": {
+    "subtitle": "练习记录历史",
+    "empty": "还没有练习记录",
+    "questionUnit": "题"
+  },
+  "aiChat": {
+    "floating": {
+      "buttonTitle": "AI 学习助教答疑",
+      "buttonAria": "打开 AI 答疑",
+      "windowTitle": "🎓 AI 学习助教答疑"
+    },
+    "tutorChat": {
+      "emptyPrompt": "可向 AI 学习助教提问语法、词汇辨析、固定搭配相关问题，支持文字输入或粘贴截图",
+      "thinking": "AI 助教正在思考…",
+      "inputPlaceholder": "向 AI 学习助教提问，支持粘贴截图…",
+      "uploadScreenshotTitle": "上传截图",
+      "send": "发送",
+      "extractLabel": "从这段对话提取知识点，分类（可多选）",
+      "extracting": "提取中…",
+      "extractButton": "📚 提取知识点",
+      "errNoCategorySelected": "请先选择要提取的分类",
+      "errNoExtraction": "AI 未能从这段对话里提取到知识点"
+    }
+  },
+  "wordPopup": {
+    "noteLabel": "备注（可选）",
+    "notePlaceholder": "添加个人备注…",
+    "notFound": "未查到该词",
+    "querying": "查询中…",
+    "savedToVocab": "已加入生词本 ✓",
+    "addToVocabLabel": "加入生词本：",
+    "dictDefinitionsLabel": "词典释义",
+    "noEntry": "未收录该词条",
+    "referenceExampleLabel": "参考例句",
+    "noExample": "暂无例句"
+  },
+  "dictionaryLookup": {
+    "lookupTitle": "点击查 \"{{word}}\""
+  },
+  "dictionaryQuickAdd": {
+    "placeholder": "查词典…输入英文单词",
+    "search": "查询"
+  },
+  "accuracyCalculator": {
+    "title": "正确率计算工具",
+    "subtitle": "按每组题目分别填写正确 / 错误题数，可累加多组",
+    "groupLabel": "第{{n}}组",
+    "correctLabel": "正确",
+    "wrongLabel": "错误",
+    "addGroup": "+ 添加一组",
+    "summary": "共 {{total}} 题 · 正确 {{correct}} · 错误 {{wrong}}",
+    "calculateAndReturn": "计算并返回"
+  },
+  "home": {
+    "examCountdown": {
+      "daysUnit": "天",
+      "untilExam": "距 PTE 考试",
+      "noDateSet": "尚未设置考试日期",
+      "examDateLabel": "考试日期：{{date}}",
+      "editDate": "修改日期",
+      "setDate": "设置考试日期",
+      "postponePrompt": "距考试仅剩 {{count}} 天。若复习进度尚未完成，建议考虑调整考试日期",
+      "keepDate": "不调整，继续按计划复习",
+      "targetScoreLabel": "目标分数（雅思等效）",
+      "ieltsBand": "雅思 {{band}} 分",
+      "skills": {
+        "speaking": "口语",
+        "writing": "写作",
+        "reading": "阅读",
+        "listening": "听力"
+      }
+    },
+    "dailyPlan": {
+      "todayDone": "今日完成",
+      "streak": "🔥 连续记录 {{count}} 天",
+      "longestStreak": "（最长 {{count}} 天）",
+      "editPlanTitle": "编辑练习计划",
+      "historyTitle": "查看练习记录历史",
+      "logButton": "记录练习",
+      "loggedToast": "记录成功 ✓",
+      "planUpdatedToast": "计划已更新 ✓"
+    },
+    "accuracyChart": {
+      "title": "阅读正确率趋势",
+      "periodAvg": "期间平均 {{avg}}%",
+      "noData": "暂无数据，记录阅读题型练习后将显示趋势",
+      "accuracyLabel": "正确率",
+      "ranges": { "7d": "7天", "30d": "30天", "all": "全部" },
+      "modes": { "total": "总的", "breakdown": "细项" }
+    },
+    "todoList": {
+      "title": "待办事项",
+      "addPlaceholder": "添加待办…",
+      "empty": "还没有待办事项"
+    },
+    "addKnowledgePanel": {
+      "title": "录入知识点",
+      "contentLabel": "内容",
+      "contentHint": "（Ctrl+V 可粘贴截图）",
+      "contentPlaceholder": "输入或粘贴要整理的单词、句子、段落…",
+      "uploadLabel": "上传文件",
+      "imageLabel": "图片",
+      "imageFormats": "PNG·JPG",
+      "fileLabel": "文件",
+      "fileFormats": "PDF·Word·TXT·MD",
+      "categoryLabel": "分类",
+      "categoryHint": "（可多选）",
+      "errNoCategory": "请先选择至少一个分类",
+      "errNoContent": "请输入内容或上传文件",
+      "errNoExtraction": "AI 未提取到知识点，请调整内容重试",
+      "savedMsg": "已保存 {{count}} 个知识点 ✓",
+      "aiOrganizing": "AI 整理中…",
+      "aiOrganize": "✨  AI 整理"
+    }
+  }
+}

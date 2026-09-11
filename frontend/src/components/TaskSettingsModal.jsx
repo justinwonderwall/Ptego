@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 
 const SECTIONS = ['Speaking', 'Writing', 'Reading', 'Listening'];
 
 export default function TaskSettingsModal({ onClose, onSaved }) {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState([]);
   const [saving, setSaving] = useState(false);
   const [changed, setChanged] = useState({});   // { id: { daily_target, archived } }
@@ -60,7 +62,7 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
-          <h2 className="font-bold text-slate-900 dark:text-slate-100">编辑打卡计划</h2>
+          <h2 className="font-bold text-slate-900 dark:text-slate-100">{t('home.dailyPlan.editPlanTitle')}</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none"
@@ -101,7 +103,7 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
                       </span>
                       {/* Daily target */}
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-xs text-slate-400">每日</span>
+                        <span className="text-xs text-slate-400">{t('taskSettings.dailyLabel')}</span>
                         <input
                           type="number"
                           min="1"
@@ -115,7 +117,7 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
                             dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400
                             disabled:opacity-30 disabled:cursor-not-allowed"
                         />
-                        <span className="text-xs text-slate-400">题</span>
+                        <span className="text-xs text-slate-400">{t('taskSettings.questionUnit')}</span>
                       </div>
                     </div>
                   ))}
@@ -133,14 +135,14 @@ export default function TaskSettingsModal({ onClose, onSaved }) {
             className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-semibold
               disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {saving ? '保存中…' : '保存'}
+            {saving ? t('knowledge.saving') : t('common.save')}
           </button>
           <button
             onClick={onClose}
             className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm
               text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
-            取消
+            {t('common.cancel')}
           </button>
         </div>
       </div>

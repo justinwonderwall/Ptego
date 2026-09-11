@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Scans the rendered article for headings and turns them into a sticky
 // left-hand outline nav — mirrors the note's actual structure (from the
 // live DOM, not a re-parse of the markdown) so it always matches what's
 // on screen, including inline formatting inside headings.
 export default function ArticleToc({ containerRef, watch }) {
+  const { t } = useTranslation();
   const [headings, setHeadings] = useState([]);
   const [activeId, setActiveId] = useState(null);
 
@@ -72,7 +74,7 @@ export default function ArticleToc({ containerRef, watch }) {
   return (
     <nav className="w-48 shrink-0 max-h-[50vh] overflow-y-auto pr-2">
       <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-3">
-        文章导航
+        {t('articleToc.navTitle')}
       </div>
       <ul className="space-y-0.5 border-l border-slate-200 dark:border-slate-700">
         {headings.map(h => (

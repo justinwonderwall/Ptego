@@ -1,45 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import AccuracyCalculator from './AccuracyCalculator';
 
-// Non-modal floating card (not a full-screen dialog) so the knowledge-entry
-// panel next to it stays clickable — you can jot down a knowledge point
-// mid check-in without losing your place here.
 export default function CheckInModal({ task, onClose, onSuccess }) {
+  const { t } = useTranslation();
+  const MISTAKE_MESSAGES = {
+    added: t('checkIn.mistakeAdded'),
+    updated: t('checkIn.mistakeUpdated'),
+    mastered: t('checkIn.mistakeMastered'),
+  };
   const [count, setCount] = useState('1');
   const [score, setScore] = useState('');
+  const [questionNo, setQuestionNo] = useState('');
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showCalc, setShowCalc] = useState(false);
   const [parsingImage, setParsingImage] = useState(false);
   const [parseNote, setParseNote] = useState(null);
+  const [dueMistakes, setDueMistakes] = useState([]);
+
+  // Surface today's due redos for this exact task so the user can pick the
+  // question number with one click instead of having to remember/retype it —
+  // that's the whole reason the mistake book links to a check-in in the first
+  // place, so guessing the number back out shouldn't be the friction point.
+  useEffect(() => {
+    api.getMistakesDue()
+      .then(rows => setDueMistakes(rows.filter(m => m.task_type_id === task.id)))
+      .catch(() => {});
+  }, [task.id]);
 
   const submit = async () => {
     const n = parseInt(count, 10);
-    if (!n || n < 1) { setError('请输入有效题数'); return; }
+    if (!n || n < 1) { setError(t('checkIn.errInvalidCount')); return; }
     const s = score !== '' ? parseFloat(score) : null;
-    if (s !== null && (s < 0 || s > 100)) { setError('正确率须在 0–100 之间'); return; }
+    if (s !== null && (s < 0 || s > 100)) { setError(t('checkIn.errInvalidScore')); return; }
 
     setLoading(true);
     setError(null);
     try {
-      await api.logPractice({
+      const result = await api.logPractice({
         task_type_id: task.id,
         count: n,
         score_pct: s,
+        question_no: questionNo.trim() || null,
         note: note.trim() || null,
       });
-      onSuccess();
+      onSuccess(result.mistake ? MISTAKE_MESSAGES[result.mistake.action] : null);
       onClose();
     } catch (e) {
-      setError(e.message);
+      setError(t(`errors.${e.code}`, t('errors.generic')));
       setLoading(false);
     }
   };
 
-  const handleKey = e => { if (e.key === 'Enter') submit(); };
+  const handleKey = e => {
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+    if (e.key === 'Enter') submit();
+  };
 
   const applyCalculated = (pct) => {
     setScore(String(pct));
@@ -56,13 +76,14 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
       const result = await api.parsePracticeScreenshot(fd);
       if (result.count != null) setCount(String(result.count));
       if (result.score_pct != null) setScore(String(result.score_pct));
+      if (result.question_no) setQuestionNo(result.question_no);
       if (result.count == null && result.score_pct == null) {
-        setError('AI 没能从截图里识别出数据，麻烦手动填一下');
+        setError(t('checkIn.errNoDataRecognized'));
       } else {
-        setParseNote(result.note || 'AI 识别完成，已自动填写');
+        setParseNote(result.note || t('checkIn.aiRecognizedFilled'));
       }
     } catch (e) {
-      setError(e.message);
+      setError(t(`errors.${e.code}`, t('errors.generic')));
     } finally {
       setParsingImage(false);
     }
@@ -102,16 +123,40 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
           <div className="flex items-start justify-between gap-2">
             <div>
               <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">{task.name}</h3>
-              <p className="text-xs text-slate-400 mt-0.5">今日已完成 {task.done_today || 0} / 目标 {task.daily_target}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{t('checkIn.todayProgress', { done: task.done_today || 0, target: task.daily_target })}</p>
             </div>
             <button
               onClick={onClose}
-              aria-label="关闭"
+              aria-label={t('common.close')}
               className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 text-xl leading-none shrink-0"
             >
               ×
             </button>
           </div>
+
+          {/* Today's due redos for this task — click a chip to fill 题号
+              instead of having to remember/retype the number. */}
+          {dueMistakes.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg px-3 py-2">
+              <p className="text-xs text-amber-700 dark:text-amber-300 font-medium mb-1.5">{t('checkIn.dueTodayLabel')}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {dueMistakes.map(m => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setQuestionNo(m.question_no)}
+                    className={`text-xs px-2 py-1 rounded-md border font-medium transition-colors ${
+                      questionNo === m.question_no
+                        ? 'bg-amber-500 text-white border-amber-500'
+                        : 'bg-white dark:bg-slate-700 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                    }`}
+                  >
+                    #{m.question_no}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* AI screenshot fill — paste (Ctrl+V) a practice-results screenshot
               anywhere in this card and let the AI read off 完成题数/正确率
@@ -127,10 +172,10 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                   </svg>
-                  AI 识别中…
+                  {t('checkIn.recognizing')}
                 </>
               ) : (
-                <>📋 粘贴截图（Ctrl+V），AI 自动填写</>
+                <>{t('checkIn.pasteHint')}</>
               )}
             </div>
             {parseNote && (
@@ -140,7 +185,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
 
           <div>
             <label className="text-sm text-slate-600 dark:text-slate-400 block mb-1">
-              完成题数 <span className="text-red-400">*</span>
+              {t('checkIn.countLabel')} <span className="text-red-400">*</span>
             </label>
             <input
               type="number"
@@ -156,35 +201,46 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-sm text-slate-600 dark:text-slate-400">
-                正确率 % <span className="text-slate-400 text-xs">（可选，用于趋势图）</span>
+                {t('checkIn.scoreLabel')} <span className="text-slate-400 text-xs">{t('checkIn.scoreHint')}</span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowCalc(true)}
                 className="text-xs text-blue-500 hover:text-blue-600 font-medium shrink-0 ml-2"
               >
-                🧮 计算工具
+                {t('checkIn.calcTool')}
               </button>
             </div>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              placeholder="0 – 100"
-              value={score}
-              onChange={e => setScore(e.target.value)}
-              onKeyDown={handleKey}
-              className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400"
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                placeholder={t('checkIn.scorePlaceholder')}
+                value={score}
+                onChange={e => setScore(e.target.value)}
+                onKeyDown={handleKey}
+                className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400"
+              />
+              <input
+                type="text"
+                placeholder={t('checkIn.questionNoPlaceholder')}
+                value={questionNo}
+                onChange={e => setQuestionNo(e.target.value)}
+                onKeyDown={handleKey}
+                title={t('checkIn.questionNoTitle')}
+                className="w-28 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400"
+              />
+            </div>
           </div>
 
           <div>
             <label className="text-sm text-slate-600 dark:text-slate-400 block mb-1">
-              备注 <span className="text-slate-400 text-xs">（可选）</span>
+              {t('checkIn.noteLabel')} <span className="text-slate-400 text-xs">{t('checkIn.noteHint')}</span>
             </label>
             <input
               type="text"
-              placeholder="今天的状态、遇到的问题…"
+              placeholder={t('checkIn.notePlaceholder')}
               value={note}
               onChange={e => setNote(e.target.value)}
               onKeyDown={handleKey}
@@ -200,13 +256,13 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
               disabled={loading}
               className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50 transition-colors"
             >
-              {loading ? '提交中…' : '打卡'}
+              {loading ? t('checkIn.submitting') : t('home.dailyPlan.logButton')}
             </button>
             <button
               onClick={onClose}
               className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              取消
+              {t('common.cancel')}
             </button>
           </div>
         </>

@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 
-const CATEGORIES = [
-  { value: 'grammar',      label: '语法' },
-  { value: 'word_sense',   label: '词义辨析' },
-  { value: 'collocation',  label: '固定搭配' },
-  { value: 'polysemy',     label: '多义词' },
-];
+const CAT_VALUES = ['grammar', 'word_sense', 'collocation', 'polysemy'];
 
 const TAGS = [
   { value: 'read',  label: 'Read' },
@@ -15,6 +11,8 @@ const TAGS = [
 ];
 
 export default function KnowledgeEditModal({ item, onClose, onSaved }) {
+  const { t } = useTranslation();
+  const CATEGORIES = CAT_VALUES.map(value => ({ value, label: t(`categories.${value}`) }));
   const [form, setForm] = useState({
     category:      item.category      || 'grammar',
     term_en:       item.term_en       || '',
@@ -41,7 +39,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
       await api.updateKnowledge(item.id, form);
       onSaved();
     } catch (e) {
-      setError(e.message);
+      setError(t(`errors.${e.code}`, t('errors.generic')));
       setSaving(false);
     }
   };
@@ -49,11 +47,11 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg space-y-4 p-6" onClick={e => e.stopPropagation()}>
-        <h3 className="font-bold text-slate-900 dark:text-slate-100">编辑知识点</h3>
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">{t('knowledge.editModal.title')}</h3>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-slate-400 block mb-1">分类</label>
+            <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.category')}</label>
             <select
               value={form.category}
               onChange={e => set('category', e.target.value)}
@@ -63,7 +61,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-slate-400 block mb-1">英文词 / 短语</label>
+            <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.termEn')}</label>
             <input
               value={form.term_en}
               onChange={e => set('term_en', e.target.value)}
@@ -73,7 +71,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">中文解释</label>
+          <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.meaningZh')}</label>
           <input
             value={form.meaning_zh}
             onChange={e => set('meaning_zh', e.target.value)}
@@ -82,7 +80,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">例句</label>
+          <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.example')}</label>
           <textarea
             value={form.usage_example}
             onChange={e => set('usage_example', e.target.value)}
@@ -92,7 +90,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">学习笔记</label>
+          <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.studyNote')}</label>
           <textarea
             value={form.study_note}
             onChange={e => set('study_note', e.target.value)}
@@ -102,21 +100,21 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">标签</label>
+          <label className="text-xs text-slate-400 block mb-1">{t('knowledge.fields.tags')}</label>
           <div className="flex gap-1.5">
-            {TAGS.map(t => (
+            {TAGS.map(tg => (
               <button
-                key={t.value}
+                key={tg.value}
                 type="button"
-                onClick={() => toggleTag(t.value)}
+                onClick={() => toggleTag(tg.value)}
                 className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
-                  form.skill_tags.includes(t.value)
+                  form.skill_tags.includes(tg.value)
                     ? 'border-blue-300 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700'
                     : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300'
                 }`}
               >
-                {form.skill_tags.includes(t.value) && <span className="mr-0.5">✓</span>}
-                {t.label}
+                {form.skill_tags.includes(tg.value) && <span className="mr-0.5">✓</span>}
+                {tg.label}
               </button>
             ))}
           </div>
@@ -130,13 +128,13 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
             disabled={saving}
             className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50 transition-colors"
           >
-            {saving ? '保存中…' : '保存'}
+            {saving ? t('knowledge.saving') : t('common.save')}
           </button>
           <button
             onClick={onClose}
             className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
-            取消
+            {t('common.cancel')}
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ const fs = require('fs');
 const router = express.Router();
 const db = require('../db');
 const practiceParser = require('../services/practiceParser');
+const mistakeBook = require('../services/mistakeBook');
 
 const upload = multer({ dest: require('os').tmpdir(), limits: { fileSize: 20 * 1024 * 1024 } });
 
@@ -19,21 +20,22 @@ router.post('/logs/parse-screenshot', upload.single('image'), async (req, res) =
     res.json(result);
   } catch (err) {
     console.error('parse-screenshot error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ code: err.code || 'generic' });
   } finally {
     fs.unlink(req.file.path, () => {});
   }
 });
 
 router.post('/logs', (req, res) => {
-  const { task_type_id, count = 1, score_pct, note, log_date } = req.body;
+  const { task_type_id, count = 1, score_pct, note, log_date, question_no } = req.body;
   if (!task_type_id) return res.status(400).json({ error: 'task_type_id is required' });
   const date = log_date || new Date().toISOString().slice(0, 10);
   const result = db.run(
-    'INSERT INTO practice_logs (task_type_id, log_date, count, score_pct, note) VALUES (?, ?, ?, ?, ?)',
-    [task_type_id, date, count, score_pct ?? null, note ?? null]
+    'INSERT INTO practice_logs (task_type_id, log_date, count, score_pct, note, question_no) VALUES (?, ?, ?, ?, ?, ?)',
+    [task_type_id, date, count, score_pct ?? null, note ?? null, question_no || null]
   );
-  res.status(201).json({ id: result.lastInsertRowid });
+  const mistake = mistakeBook.recordAttempt({ task_type_id, question_no, score_pct });
+  res.status(201).json({ id: result.lastInsertRowid, mistake });
 });
 
 router.get('/logs', (req, res) => {

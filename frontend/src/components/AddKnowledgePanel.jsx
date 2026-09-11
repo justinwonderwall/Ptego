@@ -1,13 +1,13 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import KnowledgeConfirmModal from './KnowledgeConfirmModal';
-import DictionaryQuickAdd from './DictionaryQuickAdd';
 
-const CATS = [
-  { value: 'grammar',      label: '语法',    color: 'border-blue-300   text-blue-600   bg-blue-50   dark:bg-blue-900/30   dark:text-blue-300   dark:border-blue-700' },
-  { value: 'word_sense',   label: '词义辨析', color: 'border-purple-300 text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700' },
-  { value: 'collocation',  label: '固定搭配', color: 'border-teal-300   text-teal-600   bg-teal-50   dark:bg-teal-900/30   dark:text-teal-300   dark:border-teal-700' },
-  { value: 'polysemy',     label: '多义词',   color: 'border-orange-300 text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700' },
+const CAT_STYLES = [
+  { value: 'grammar',      color: 'border-blue-300   text-blue-600   bg-blue-50   dark:bg-blue-900/30   dark:text-blue-300   dark:border-blue-700' },
+  { value: 'word_sense',   color: 'border-purple-300 text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700' },
+  { value: 'collocation',  color: 'border-teal-300   text-teal-600   bg-teal-50   dark:bg-teal-900/30   dark:text-teal-300   dark:border-teal-700' },
+  { value: 'polysemy',     color: 'border-orange-300 text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700' },
 ];
 
 const ACCEPT_IMAGE = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -29,6 +29,8 @@ const isAcceptedDoc = (file) => {
 };
 
 export default function AddKnowledgePanel() {
+  const { t } = useTranslation();
+  const CATS = CAT_STYLES.map(c => ({ ...c, label: t(`categories.${c.value}`) }));
   const [text, setText]       = useState('');
   const [images, setImages]   = useState([]);    // [{ file, url }]
   const [docFile, setDocFile] = useState(null);  // { file, name }
@@ -98,7 +100,7 @@ export default function AddKnowledgePanel() {
 
   const extract = async () => {
     if (!canExtract) {
-      setError(!categories.length ? '请先选择至少一个分类' : '请输入内容或上传文件');
+      setError(!categories.length ? t('home.addKnowledgePanel.errNoCategory') : t('home.addKnowledgePanel.errNoContent'));
       return;
     }
     setLoading(true); setError(null);
@@ -109,10 +111,10 @@ export default function AddKnowledgePanel() {
       images.forEach(img => fd.append('image', img.file));
       if (docFile) fd.append('file', docFile.file);
       const points = await api.extractKnowledge(fd);
-      if (!points.length) { setError('AI 未提取到知识点，请调整内容重试'); return; }
+      if (!points.length) { setError(t('home.addKnowledgePanel.errNoExtraction')); return; }
       setExtracted(points);
     } catch (e) {
-      setError(e.message);
+      setError(t(`errors.${e.code}`, t('errors.generic')));
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,7 @@ export default function AddKnowledgePanel() {
     setText(''); setCategories([]);
     images.forEach(img => URL.revokeObjectURL(img.url));
     setImages([]); setDocFile(null); setExtracted(null);
-    setSavedMsg(`已保存 ${count} 个知识点 ✓`);
+    setSavedMsg(t('home.addKnowledgePanel.savedMsg', { count }));
     setTimeout(() => setSavedMsg(null), 3000);
   };
 
@@ -130,22 +132,19 @@ export default function AddKnowledgePanel() {
     <>
       <div className="card-surface flex flex-col">
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700/60 shrink-0">
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">录入知识点</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{t('home.addKnowledgePanel.title')}</h2>
         </div>
 
         <div className="px-4 py-3 space-y-3">
 
-          {/* 0. 字典查询 */}
-          <DictionaryQuickAdd />
-
           {/* 1. 文本输入 */}
           <div>
-            <label className="text-xs text-slate-400 block mb-1">内容 <span className="font-normal">（Ctrl+V 可粘贴截图）</span></label>
+            <label className="text-xs text-slate-400 block mb-1">{t('home.addKnowledgePanel.contentLabel')} <span className="font-normal">{t('home.addKnowledgePanel.contentHint')}</span></label>
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
               onPaste={handlePaste}
-              placeholder="输入或粘贴要整理的单词、句子、段落…"
+              placeholder={t('home.addKnowledgePanel.contentPlaceholder')}
               rows={3}
               className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm
                 dark:bg-slate-700 dark:text-white focus:outline-none focus:border-blue-400 resize-none"
@@ -154,7 +153,7 @@ export default function AddKnowledgePanel() {
 
           {/* 2. 上传 */}
           <div>
-            <label className="text-xs text-slate-400 block mb-1">上传文件</label>
+            <label className="text-xs text-slate-400 block mb-1">{t('home.addKnowledgePanel.uploadLabel')}</label>
             <div
               onDragOver={e => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
@@ -167,12 +166,12 @@ export default function AddKnowledgePanel() {
                 <button type="button" onClick={() => imgRef.current?.click()}
                   className="flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <span className="text-sm">🖼</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">图片 <span className="text-slate-400">PNG·JPG</span></span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{t('home.addKnowledgePanel.imageLabel')} <span className="text-slate-400">{t('home.addKnowledgePanel.imageFormats')}</span></span>
                 </button>
                 <button type="button" onClick={() => docRef.current?.click()}
                   className="flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <span className="text-sm">📄</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">文件 <span className="text-slate-400">PDF·Word·TXT·MD</span></span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{t('home.addKnowledgePanel.fileLabel')} <span className="text-slate-400">{t('home.addKnowledgePanel.fileFormats')}</span></span>
                 </button>
               </div>
             </div>
@@ -215,8 +214,8 @@ export default function AddKnowledgePanel() {
           {/* 3. 分类勾选 — 多选，AI 会在同一份内容里分别找每种类型 */}
           <div>
             <label className="text-xs text-slate-400 block mb-1.5">
-              分类 <span className="text-red-400">*</span>
-              <span className="font-normal text-slate-300 dark:text-slate-500">（可多选）</span>
+              {t('home.addKnowledgePanel.categoryLabel')} <span className="text-red-400">*</span>
+              <span className="font-normal text-slate-300 dark:text-slate-500">{t('home.addKnowledgePanel.categoryHint')}</span>
             </label>
             <div className="flex flex-wrap gap-1.5">
               {CATS.map(c => (
@@ -264,9 +263,9 @@ export default function AddKnowledgePanel() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                 </svg>
-                AI 整理中…
+                {t('home.addKnowledgePanel.aiOrganizing')}
               </>
-            ) : '✨  AI 整理'}
+            ) : t('home.addKnowledgePanel.aiOrganize')}
           </button>
         </div>
       </div>

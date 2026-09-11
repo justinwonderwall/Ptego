@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import CheckInModal from './CheckInModal';
 import TaskSettingsModal from './TaskSettingsModal';
@@ -14,6 +15,7 @@ const SECTION_STYLES = {
 };
 
 export default function DailyPlan() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState([]);
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0 });
   const [checkInTask, setCheckInTask] = useState(null);
@@ -34,7 +36,7 @@ export default function DailyPlan() {
 
   const showToast = msg => {
     setToast(msg);
-    setTimeout(() => setToast(null), 2000);
+    setTimeout(() => setToast(null), 3500);
   };
 
   const bySection = SECTIONS.reduce((acc, s) => {
@@ -47,7 +49,7 @@ export default function DailyPlan() {
       {/* Summary bar */}
       <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500 dark:text-slate-400">今日完成</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">{t('home.dailyPlan.todayDone')}</span>
           <span className="font-bold text-slate-900 dark:text-slate-100 tabular-nums">
             {totalDone} / {totalTarget}
           </span>
@@ -63,17 +65,17 @@ export default function DailyPlan() {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 text-sm font-medium text-orange-500">
-            🔥 连续打卡 {streak.current_streak} 天
+            {t('home.dailyPlan.streak', { count: streak.current_streak })}
             {streak.longest_streak > 0 && (
               <span className="text-slate-400 text-xs font-normal ml-1">
-                （最长 {streak.longest_streak} 天）
+                {t('home.dailyPlan.longestStreak', { count: streak.longest_streak })}
               </span>
             )}
           </div>
           {/* Settings button */}
           <button
             onClick={() => setShowSettings(true)}
-            title="编辑打卡计划"
+            title={t('home.dailyPlan.editPlanTitle')}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100
               dark:hover:text-slate-200 dark:hover:bg-slate-700 transition-colors"
           >
@@ -136,14 +138,14 @@ export default function DailyPlan() {
         <CheckInModal
           task={checkInTask}
           onClose={() => setCheckInTask(null)}
-          onSuccess={() => { load(); showToast('打卡成功 ✓'); }}
+          onSuccess={(mistakeMsg) => { load(); showToast(mistakeMsg || t('home.dailyPlan.loggedToast')); }}
         />
       )}
 
       {showSettings && (
         <TaskSettingsModal
           onClose={() => setShowSettings(false)}
-          onSaved={() => { load(); showToast('计划已更新 ✓'); }}
+          onSaved={() => { load(); showToast(t('home.dailyPlan.planUpdatedToast')); }}
         />
       )}
 
@@ -155,6 +157,7 @@ export default function DailyPlan() {
 }
 
 function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
+  const { t } = useTranslation();
   const done    = task.done_today || 0;
   const target  = task.daily_target || 1;
   const pct     = Math.min(100, Math.round(done / target * 100));
@@ -165,7 +168,7 @@ function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
       <button
         type="button"
         onClick={onShowHistory}
-        title="查看打卡历史"
+        title={t('home.dailyPlan.historyTitle')}
         className={`text-sm flex-1 min-w-0 truncate leading-tight text-left hover:underline decoration-dotted underline-offset-2 ${
           complete
             ? 'text-slate-300 dark:text-slate-600 line-through'
@@ -194,7 +197,7 @@ function TaskRow({ task, barColor, onCheckIn, onShowHistory }) {
             dark:bg-slate-700/60 dark:text-slate-400 dark:border-slate-600
             dark:hover:bg-blue-500 dark:hover:text-white dark:hover:border-blue-500"
         >
-          打卡
+          {t('home.dailyPlan.logButton')}
         </button>
       </div>
     </div>

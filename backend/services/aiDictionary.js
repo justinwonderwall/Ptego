@@ -34,7 +34,7 @@ function parseResult(raw) {
 
 async function defineWord(word) {
   const provider = getProvider();
-  const raw = await provider.callModel(SYSTEM_PROMPT, [{ type: 'text', text: word }]);
+  const raw = await provider.callModel(SYSTEM_PROMPT, [{ role: 'user', content: word }]);
   return parseResult(raw);
 }
 

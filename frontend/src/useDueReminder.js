@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from './api';
+import i18n from './i18n';
 
 const ENABLED_KEY = 'pte-notify-enabled';
 const LAST_NOTIFIED_KEY = 'pte-notify-last-at';
@@ -30,7 +31,7 @@ export function useDueReminder() {
     const last = Number(localStorage.getItem(LAST_NOTIFIED_KEY) || 0);
     if (Date.now() - last < COOLDOWN_MS) return;
 
-    notify('PTE GO · 复习提醒', `你有 ${count} 个知识点待复习，趁热乎巩固一下吧`, 'pte-review-due');
+    notify(i18n.t('dueReminder.notifyTitle'), i18n.t('dueReminder.notifyBody', { count }), 'pte-review-due');
     localStorage.setItem(LAST_NOTIFIED_KEY, String(Date.now()));
   }, [enabled, permission]);
 
@@ -55,7 +56,7 @@ export function useDueReminder() {
     if (result === 'granted') {
       setEnabled(true);
       localStorage.setItem(ENABLED_KEY, '1');
-      notify('PTE GO', '复习提醒已开启，有到期的知识点会在这里提醒你', 'pte-notify-confirm');
+      notify(i18n.t('dueReminder.confirmTitle'), i18n.t('dueReminder.confirmBody'), 'pte-notify-confirm');
     }
   }, []);
 

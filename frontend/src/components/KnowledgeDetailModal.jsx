@@ -1,12 +1,7 @@
-import React from 'react';
-import { ClickableText, DictResultPanel, useDictLookup } from './DictionaryLookup';
-
-const CATEGORIES = [
-  { value: 'grammar',      label: '语法' },
-  { value: 'word_sense',   label: '词义辨析' },
-  { value: 'collocation',  label: '固定搭配' },
-  { value: 'polysemy',     label: '多义词' },
-];
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ClickableText } from './DictionaryLookup';
+import WordPopup from './WordPopup';
 
 const CAT_COLORS = {
   grammar:      'bg-blue-50  text-blue-600  dark:bg-blue-900/30  dark:text-blue-300',
@@ -16,7 +11,8 @@ const CAT_COLORS = {
 };
 
 export default function KnowledgeDetailModal({ item, onClose }) {
-  const { queriedWord, dict, loading, error, lookup } = useDictLookup();
+  const { t } = useTranslation();
+  const [popupWord, setPopupWord] = useState(null);
 
   const playAudio = (url) => { if (url) new Audio(url).play().catch(() => {}); };
 
@@ -29,7 +25,7 @@ export default function KnowledgeDetailModal({ item, onClose }) {
         {/* Category + skill tags */}
         <div className="flex flex-wrap gap-1.5">
           <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full ${CAT_COLORS[item.category] || ''}`}>
-            {CATEGORIES.find(c => c.value === item.category)?.label || item.category}
+            {item.category ? t(`categories.${item.category}`, item.category) : item.category}
           </span>
           {item.skill_tags?.map(tag => (
             <span key={tag} className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">
@@ -41,7 +37,7 @@ export default function KnowledgeDetailModal({ item, onClose }) {
         {/* Term (each word clickable -> dictionary lookup) */}
         <div>
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            <ClickableText text={item.term_en} onWordClick={lookup} />
+            <ClickableText text={item.term_en} onWordClick={setPopupWord} />
           </div>
           {(item.phonetic || item.audio_url) && (
             <div className="flex items-center gap-1.5 mt-1 text-sm text-slate-400">
@@ -59,29 +55,28 @@ export default function KnowledgeDetailModal({ item, onClose }) {
         {/* Example (each word clickable too) */}
         {item.usage_example && (
           <p className="text-sm text-slate-400 italic leading-relaxed border-l-2 border-slate-100 dark:border-slate-700 pl-3">
-            "<ClickableText text={item.usage_example} onWordClick={lookup} />"
+            "<ClickableText text={item.usage_example} onWordClick={setPopupWord} />"
           </p>
         )}
 
         {/* Study note */}
         {item.study_note && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg px-3 py-2.5">
-            <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-300 uppercase tracking-wider mb-1">学习笔记</p>
+            <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-300 uppercase tracking-wider mb-1">{t('knowledge.fields.studyNote')}</p>
             <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{item.study_note}</p>
           </div>
         )}
-
-        {/* Dictionary lookup result */}
-        <DictResultPanel queriedWord={queriedWord} dict={dict} loading={loading} error={error} />
 
         <button
           onClick={onClose}
           className="w-full border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm
             text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
         >
-          关闭
+          {t('common.close')}
         </button>
       </div>
+
+      {popupWord && <WordPopup word={popupWord} onClose={() => setPopupWord(null)} />}
     </div>
   );
 }

@@ -48,7 +48,7 @@ router.post('/extract', upload.fields([
         const parsed = await pdfParse(buf);
         fileText = parsed.text;
         if (!fileText?.trim()) {
-          return res.status(400).json({ error: 'PDF 内容为空，可能是扫描版图片 PDF，请改用图片上传' });
+          return res.status(400).json({ code: 'EMPTY_PDF_CONTENT' });
         }
       } else if (
         docFile.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
@@ -58,12 +58,13 @@ router.post('/extract', upload.fields([
         const result = await mammoth.extractRawText({ path: docFile.path });
         fileText = result.value;
         if (!fileText?.trim()) {
-          return res.status(400).json({ error: 'Word 文档内容为空' });
+          return res.status(400).json({ code: 'EMPTY_DOCX_CONTENT' });
         }
       } else if (docFile.mimetype === 'application/msword' || ext === '.doc') {
-        return res.status(400).json({ error: '暂不支持旧版 .doc 格式，请在 Word 里另存为 .docx 后重新上传' });
+        return res.status(400).json({ code: 'UNSUPPORTED_DOC_FORMAT' });
       } else {
-        return res.status(400).json({ error: `不支持的文件类型：${docFile.mimetype || ext}` });
+        console.warn(`Unsupported file type: ${docFile.mimetype || ext}`);
+        return res.status(400).json({ code: 'UNSUPPORTED_FILE_TYPE' });
       }
     }
 
@@ -73,7 +74,7 @@ router.post('/extract', upload.fields([
     res.json(points);
   } catch (err) {
     console.error('Extract error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ code: err.code || 'generic' });
   } finally {
     if (docFile) fs.unlink(docFile.path, () => {});
     imageFiles.forEach(f => fs.unlink(f.path, () => {}));
@@ -97,8 +98,8 @@ router.post('/', async (req, res) => {
       if (existing) { inserted.push({ ...p, id: existing.id, duplicate: true }); continue; }
     }
 
-    let phonetic = null, audio_url = null;
-    if (p.term_en) {
+    let phonetic = p.phonetic || null, audio_url = p.audio_url || null;
+    if (p.term_en && !phonetic && !audio_url) {
       try {
         const dictResult = await dictionaryService.lookup(p.term_en);
         phonetic = dictResult.phonetic || null;
@@ -108,10 +109,10 @@ router.post('/', async (req, res) => {
 
     const result = db.run(
       `INSERT INTO knowledge_points
-        (category, term_en, meaning_zh, usage_example, study_note, skill_tags, phonetic, audio_url, source_type, raw_input, next_review)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (category, term_en, meaning_zh, usage_example, study_note, skill_tags, vocab_type, phonetic, audio_url, source_type, raw_input, next_review)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [p.category, p.term_en || null, p.meaning_zh || null, p.usage_example || null, p.study_note || null,
-       toTagsString(p.skill_tags), phonetic, audio_url, p.source_type || 'text', p.raw_input || null, today]
+       toTagsString(p.skill_tags), p.vocab_type || null, phonetic, audio_url, p.source_type || 'text', p.raw_input || null, today]
     );
     inserted.push({ ...p, id: result.lastInsertRowid, phonetic, audio_url });
   }
@@ -120,13 +121,15 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  const { category, search, page = 1 } = req.query;
+  const { category, vocab_type, search, important, page = 1 } = req.query;
   const pageSize = 20;
   const offset = (Number(page) - 1) * pageSize;
   const conditions = [];
   const params = [];
 
-  if (category) { conditions.push('category = ?'); params.push(category); }
+  if (category)   { conditions.push('category = ?');   params.push(category); }
+  if (vocab_type) { conditions.push('vocab_type = ?'); params.push(vocab_type); }
+  if (important === '1' || important === 'true') { conditions.push('important = 1'); }
   if (search) {
     conditions.push('(term_en LIKE ? OR meaning_zh LIKE ?)');
     params.push(`%${search}%`, `%${search}%`);
@@ -143,7 +146,7 @@ router.get('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-  const { category, term_en, meaning_zh, usage_example, study_note, skill_tags } = req.body;
+  const { category, term_en, meaning_zh, usage_example, study_note, skill_tags, vocab_type, important } = req.body;
   const updates = [];
   const params = [];
   if (category !== undefined)      { updates.push('category = ?');      params.push(category); }
@@ -152,6 +155,8 @@ router.put('/:id', (req, res) => {
   if (usage_example !== undefined) { updates.push('usage_example = ?'); params.push(usage_example); }
   if (study_note !== undefined)    { updates.push('study_note = ?');    params.push(study_note); }
   if (skill_tags !== undefined)    { updates.push('skill_tags = ?');    params.push(toTagsString(skill_tags)); }
+  if (vocab_type !== undefined)    { updates.push('vocab_type = ?');    params.push(vocab_type); }
+  if (important !== undefined)     { updates.push('important = ?');    params.push(important ? 1 : 0); }
   if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
   updates.push("updated_at = datetime('now')");
   params.push(Number(req.params.id));

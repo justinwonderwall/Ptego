@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import AiTutorChat from './AiTutorChat';
+import DictionaryQuickAdd from './DictionaryQuickAdd';
 
 const BUTTON_SIZE = 56;
 const WINDOW_W = 380;
@@ -51,11 +53,13 @@ function useDraggable(initialPos, size) {
 }
 
 // Mounted once at the app root (main.jsx) — not inside any single page — so
-// the chat button/window and the conversation itself persist across
-// navigation between 首页/复习/笔记. The window is kept mounted at all times
-// (visibility toggled via CSS, not conditional rendering) so AiTutorChat's
-// message state survives closing/reopening.
+// the chat button and window persist (position, drag state) across
+// navigation between 首页/复习/笔记. The window shell stays mounted at all
+// times (visibility toggled via CSS), but AiTutorChat itself is only
+// rendered while open — each close unmounts it, so reopening starts a fresh
+// conversation instead of resuming the previous one.
 export default function FloatingAiChat() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const btn = useDraggable(
@@ -78,8 +82,8 @@ export default function FloatingAiChat() {
         onMouseDown={btn.onPointerDown}
         onTouchStart={btn.onPointerDown}
         onClick={handleButtonClick}
-        title="AI 答疑 · PTE 老师"
-        aria-label="打开 AI 答疑"
+        title={t('aiChat.floating.buttonTitle')}
+        aria-label={t('aiChat.floating.buttonAria')}
         style={{ left: btn.pos.x, top: btn.pos.y, width: BUTTON_SIZE, height: BUTTON_SIZE }}
         className="fixed z-40 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 text-white
           shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_10px_28px_-8px_rgb(59_130_246/0.6)]
@@ -103,19 +107,23 @@ export default function FloatingAiChat() {
             bg-gradient-to-r from-blue-50/80 to-transparent dark:from-blue-900/10 dark:to-transparent
             cursor-grab active:cursor-grabbing select-none"
         >
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">🎓 AI 答疑 · PTE 老师</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{t('aiChat.floating.windowTitle')}</h2>
           <button
             onClick={() => setOpen(false)}
             onMouseDown={e => e.stopPropagation()}
-            aria-label="关闭"
+            aria-label={t('common.close')}
             className="text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 text-xl leading-none"
           >
             ×
           </button>
         </div>
 
+        <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-700/60 shrink-0">
+          <DictionaryQuickAdd active={open} />
+        </div>
+
         <div className="flex-1 min-h-0">
-          <AiTutorChat />
+          {open && <AiTutorChat />}
         </div>
       </div>
     </>

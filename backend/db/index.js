@@ -27,6 +27,22 @@ async function initDb() {
   if (!kpCols.includes('skill_tags')) {
     db.exec('ALTER TABLE knowledge_points ADD COLUMN skill_tags TEXT');
   }
+  if (!kpCols.includes('vocab_type')) {
+    db.exec('ALTER TABLE knowledge_points ADD COLUMN vocab_type TEXT');
+  }
+  if (!kpCols.includes('important')) {
+    db.exec('ALTER TABLE knowledge_points ADD COLUMN important INTEGER DEFAULT 0');
+  }
+
+  const mistakeCols = db.pragma('table_info(mistakes)').map(c => c.name);
+  if (!mistakeCols.includes('important')) {
+    db.exec('ALTER TABLE mistakes ADD COLUMN important INTEGER DEFAULT 0');
+  }
+
+  const plCols = db.pragma('table_info(practice_logs)').map(c => c.name);
+  if (!plCols.includes('question_no')) {
+    db.exec('ALTER TABLE practice_logs ADD COLUMN question_no TEXT');
+  }
 
   const settingsCols = db.pragma('table_info(settings)').map(c => c.name);
   if (!settingsCols.includes('target_band')) {

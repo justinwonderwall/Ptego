@@ -15,6 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/settings',   require('./routes/settings'));
 app.use('/api/task-types', require('./routes/taskTypes'));
 app.use('/api/practice',   require('./routes/practice'));
+app.use('/api/mistakes',   require('./routes/mistakes'));
 app.use('/api/knowledge',  require('./routes/knowledge'));
 app.use('/api/review',     require('./routes/review'));
 app.use('/api/dictionary', require('./routes/dictionary'));

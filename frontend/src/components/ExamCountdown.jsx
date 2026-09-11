@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 
 // PTE score targets roughly equivalent to each IELTS band (per official
@@ -17,6 +18,7 @@ const POSTPONE_THRESHOLD_DAYS = 16;
 const POSTPONE_DISMISS_KEY = 'pte-postpone-dismissed-for';
 
 export default function ExamCountdown() {
+  const { t } = useTranslation();
   const [examDate, setExamDate] = useState(null);
   const [editing, setEditing] = useState(false);
   const [inputDate, setInputDate] = useState('');
@@ -86,13 +88,13 @@ export default function ExamCountdown() {
             onClick={save}
             className="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-colors"
           >
-            确认
+            {t('common.confirm')}
           </button>
           <button
             onClick={() => setEditing(false)}
             className="px-3 py-2 text-white/70 hover:text-white text-sm"
           >
-            取消
+            {t('common.cancel')}
           </button>
         </div>
       ) : (
@@ -103,22 +105,22 @@ export default function ExamCountdown() {
                 <div className="flex items-baseline gap-3">
                   <span className="text-6xl font-bold leading-none">{daysLeft}</span>
                   <div>
-                    <div className="text-xl font-medium opacity-90">天</div>
-                    <div className="text-sm opacity-60 mt-0.5">距 PTE 考试</div>
+                    <div className="text-xl font-medium opacity-90">{t('home.examCountdown.daysUnit')}</div>
+                    <div className="text-sm opacity-60 mt-0.5">{t('home.examCountdown.untilExam')}</div>
                   </div>
                 </div>
               ) : (
-                <div className="text-white/70">尚未设置考试日期</div>
+                <div className="text-white/70">{t('home.examCountdown.noDateSet')}</div>
               )}
               {examDate && (
-                <div className="text-xs opacity-50 mt-2">考试日期：{examDate}</div>
+                <div className="text-xs opacity-50 mt-2">{t('home.examCountdown.examDateLabel', { date: examDate })}</div>
               )}
             </div>
             <button
               onClick={() => setEditing(true)}
               className="text-sm text-white/70 hover:text-white underline"
             >
-              {examDate ? '修改日期' : '设置考试日期'}
+              {examDate ? t('home.examCountdown.editDate') : t('home.examCountdown.setDate')}
             </button>
           </div>
 
@@ -126,20 +128,20 @@ export default function ExamCountdown() {
             <div className="mt-4 bg-white/15 rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
               <span className="text-sm flex items-center gap-2">
                 <span>⏰</span>
-                距考试只剩 {daysLeft} 天了，复习进度跟得上吗？要不要考虑推迟考试日期？
+                {t('home.examCountdown.postponePrompt', { count: daysLeft })}
               </span>
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => setEditing(true)}
                   className="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-50 transition-colors"
                 >
-                  修改日期
+                  {t('home.examCountdown.editDate')}
                 </button>
                 <button
                   onClick={dismissPostponePrompt}
                   className="px-2 py-1.5 text-white/70 hover:text-white text-xs"
                 >
-                  不用，继续冲刺
+                  {t('home.examCountdown.keepDate')}
                 </button>
               </div>
             </div>
@@ -147,7 +149,7 @@ export default function ExamCountdown() {
 
           <div className="mt-5 pt-4 border-t border-white/15">
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <span className="text-xs font-medium opacity-70">目标分数（雅思等效）</span>
+              <span className="text-xs font-medium opacity-70">{t('home.examCountdown.targetScoreLabel')}</span>
               <div className="flex gap-1.5">
                 {BANDS.map(band => (
                   <button
@@ -159,7 +161,7 @@ export default function ExamCountdown() {
                         : 'border-white/30 text-white/80 hover:border-white/60'
                     }`}
                   >
-                    雅思 {band} 分
+                    {t('home.examCountdown.ieltsBand', { band })}
                   </button>
                 ))}
               </div>
@@ -167,10 +169,10 @@ export default function ExamCountdown() {
 
             {targets && (
               <div className="grid grid-cols-4 gap-2 mt-3">
-                <ScoreChip label="口语" value={targets.speaking} />
-                <ScoreChip label="写作" value={targets.writing} />
-                <ScoreChip label="阅读" value={targets.reading} />
-                <ScoreChip label="听力" value={targets.listening} />
+                <ScoreChip label={t('home.examCountdown.skills.speaking')} value={targets.speaking} />
+                <ScoreChip label={t('home.examCountdown.skills.writing')} value={targets.writing} />
+                <ScoreChip label={t('home.examCountdown.skills.reading')} value={targets.reading} />
+                <ScoreChip label={t('home.examCountdown.skills.listening')} value={targets.listening} />
               </div>
             )}
           </div>

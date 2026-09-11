@@ -4,12 +4,16 @@ const db = require('../db');
 const srs = require('../services/srs');
 
 router.get('/due', (req, res) => {
+  const { vocab_type, important } = req.query;
   const today = new Date().toISOString().slice(0, 10);
+  const params = [today];
+  let where = 'mastered = 0 AND (next_review IS NULL OR next_review <= ?)';
+  if (vocab_type) { where += ' AND vocab_type = ?'; params.push(vocab_type); }
+  if (important === '1' || important === 'true') { where += ' AND important = 1'; }
+
   const rows = db.query(
-    `SELECT * FROM knowledge_points
-     WHERE mastered = 0 AND (next_review IS NULL OR next_review <= ?)
-     ORDER BY next_review ASC, id ASC`,
-    [today]
+    `SELECT * FROM knowledge_points WHERE ${where} ORDER BY next_review ASC, id ASC`,
+    params
   );
   res.json(rows.map(r => ({ ...r, skill_tags: r.skill_tags ? r.skill_tags.split(',').filter(Boolean) : [] })));
 });

@@ -7,6 +7,7 @@ router.get('/:word', async (req, res) => {
     const result = await dictionaryService.lookupRich(req.params.word);
     res.json(result);
   } catch (err) {
+    console.error('dictionary lookup error:', err);
     res.status(404).json({ error: err.message });
   }
 });

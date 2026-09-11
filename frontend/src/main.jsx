@@ -1,23 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import './i18n';
 import './index.css';
 import Home from './pages/Home';
 import Review from './pages/Review';
 import Notes from './pages/Notes';
 import { ThemeProvider, useTheme } from './useTheme';
+import { LanguageProvider, useLanguage } from './useLanguage';
 import { useDueReminder } from './useDueReminder';
 import FloatingAiChat from './components/FloatingAiChat';
 
 function ThemeToggle() {
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
   return (
     <button
       onClick={toggleTheme}
-      title={isDark ? '切换到浅色模式' : '切换到深色模式'}
-      aria-label="切换主题"
+      title={isDark ? t('theme.toLight') : t('theme.toDark')}
+      aria-label={t('theme.toggleAria')}
       className="relative w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700
         hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
     >
@@ -35,21 +39,22 @@ function ThemeToggle() {
 }
 
 function NotifyToggle({ enabled, permission, supported, onToggle }) {
+  const { t } = useTranslation();
   if (!supported) return null;
   const blocked = permission === 'denied';
 
   const title = blocked
-    ? '通知权限已被浏览器拒绝，请在浏览器网站设置中开启'
+    ? t('notify.blocked')
     : enabled
-    ? '复习提醒已开启，点击关闭'
-    : '开启复习到期的桌面提醒';
+    ? t('notify.onToDisable')
+    : t('notify.onHint');
 
   return (
     <button
       onClick={onToggle}
       disabled={blocked}
       title={title}
-      aria-label="复习提醒"
+      aria-label={t('notify.aria')}
       aria-pressed={enabled}
       className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
         blocked
@@ -68,6 +73,25 @@ function NotifyToggle({ enabled, permission, supported, onToggle }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006.53 6.53M4.5 4.5l15 15M15 17.082A2.25 2.25 0 0112.75 19h-1.5a2.25 2.25 0 01-2.24-2.006M4.5 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.454 1.31" />
         </svg>
       )}
+    </button>
+  );
+}
+
+function LanguageToggle() {
+  const { t } = useTranslation();
+  const { lang, toggleLang } = useLanguage();
+  const isEn = lang === 'en';
+
+  return (
+    <button
+      onClick={toggleLang}
+      title={isEn ? t('language.toZh') : t('language.toEn')}
+      aria-label={t('language.toggleAria')}
+      className="relative w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700
+        hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors
+        text-[11px] font-bold tracking-tight"
+    >
+      {isEn ? 'EN' : '中'}
     </button>
   );
 }
@@ -91,6 +115,7 @@ function NavItem({ to, end, children }) {
 }
 
 function Nav() {
+  const { t } = useTranslation();
   const { dueCount, supported, enabled, permission, toggle } = useDueReminder();
 
   return (
@@ -103,13 +128,13 @@ function Nav() {
           shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_4px_10px_-2px_rgb(59_130_246/0.5)]">
           <span className="text-white text-xs font-extrabold tracking-tight">P</span>
         </div>
-        <span className="font-bold text-slate-900 dark:text-white text-[15px] tracking-tight">PTE GO</span>
+        <span className="font-bold text-slate-900 dark:text-white text-[15px] tracking-tight">{t('nav.brand')}</span>
       </div>
 
-      <NavItem to="/" end>首页</NavItem>
+      <NavItem to="/" end>{t('nav.home')}</NavItem>
 
       <NavItem to="/review">
-        复习
+        {t('nav.review')}
         {dueCount > 0 && (
           <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1
             bg-red-500 text-white text-[10px] font-bold rounded-full">
@@ -118,11 +143,12 @@ function Nav() {
         )}
       </NavItem>
 
-      <NavItem to="/notes">笔记</NavItem>
+      <NavItem to="/notes">{t('nav.notes')}</NavItem>
 
       <div className="ml-auto flex items-center gap-1">
         <NotifyToggle enabled={enabled} permission={permission} supported={supported} onToggle={toggle} />
         <ThemeToggle />
+        <LanguageToggle />
       </div>
     </nav>
   );
@@ -132,17 +158,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <div className="app-shell h-screen flex flex-col text-slate-900 dark:text-slate-100">
-          <Nav />
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <Routes>
-              <Route path="/"          element={<Home />} />
-              <Route path="/review"    element={<Review />} />
-              <Route path="/notes"     element={<Notes />} />
-            </Routes>
+        <LanguageProvider>
+          <div className="app-shell h-screen flex flex-col text-slate-900 dark:text-slate-100">
+            <Nav />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <Routes>
+                <Route path="/"          element={<Home />} />
+                <Route path="/review"    element={<Review />} />
+                <Route path="/notes"     element={<Notes />} />
+              </Routes>
+            </div>
+            <FloatingAiChat />
           </div>
-          <FloatingAiChat />
-        </div>
+        </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>

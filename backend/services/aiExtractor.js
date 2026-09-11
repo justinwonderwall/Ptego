@@ -46,11 +46,9 @@ function parseResult(raw) {
     parsed = JSON.parse(text);
   } catch (err) {
     const looksTruncated = !text.endsWith(']') && !text.endsWith('}');
-    throw new Error(
-      looksTruncated
-        ? 'AI 返回内容过长被截断，请减少单次录入的内容量（比如拆成几段分批整理）后重试'
-        : 'AI 返回的内容无法解析，请重试'
-    );
+    const e = new Error(looksTruncated ? 'AI_RESPONSE_TOO_LONG' : 'AI_RESPONSE_UNPARSEABLE');
+    e.code = looksTruncated ? 'AI_RESPONSE_TOO_LONG' : 'AI_RESPONSE_UNPARSEABLE';
+    throw e;
   }
   if (!Array.isArray(parsed)) throw new Error('Expected JSON array');
   const valid = ['grammar', 'word_sense', 'collocation', 'polysemy'];

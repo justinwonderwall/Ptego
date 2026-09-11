@@ -23,7 +23,27 @@ CREATE TABLE IF NOT EXISTS practice_logs (
   count         INTEGER DEFAULT 1,
   score_pct     REAL,
   note          TEXT,
+  question_no   TEXT,                 -- 打卡截图里识别出的题号（有的话），用于关联错题集
   created_at    TEXT DEFAULT (datetime('now'))
+);
+
+-- 错题集：打卡截图识别出题号且正确率 < 50% 时自动收录，用艾宾浩斯间隔重复
+-- 提醒重做；同一题号后续每次打卡都会追加一条 attempts 记录并重新计算下次
+-- 复习时间，连续 2 次重做正确率 ≥ 70% 视为掌握，退出复习队列。
+CREATE TABLE IF NOT EXISTS mistakes (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  task_type_id  INTEGER NOT NULL REFERENCES task_types(id),
+  question_no   TEXT NOT NULL,
+  attempts      TEXT DEFAULT '[]',    -- JSON array of { date, score_pct }
+  consec_pass   INTEGER DEFAULT 0,    -- 连续达标（≥70%）次数，达到 2 即毕业
+  ease          REAL DEFAULT 2.5,
+  interval_days INTEGER DEFAULT 0,
+  repetitions   INTEGER DEFAULT 0,
+  next_review   TEXT,
+  mastered      INTEGER DEFAULT 0,
+  important     INTEGER DEFAULT 0,    -- 用户手动标记的重点/难记错题
+  created_at    TEXT DEFAULT (datetime('now')),
+  updated_at    TEXT DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS knowledge_points (
@@ -34,6 +54,7 @@ CREATE TABLE IF NOT EXISTS knowledge_points (
   usage_example TEXT,
   study_note    TEXT,
   skill_tags    TEXT,                 -- 逗号分隔，取值 read/speak/write，可多选
+  vocab_type    TEXT,                 -- 生词本分类：pronunciation/spelling/reading，决定复习时的练习方式
   phonetic      TEXT,
   audio_url     TEXT,
   source_type   TEXT,
@@ -44,6 +65,7 @@ CREATE TABLE IF NOT EXISTS knowledge_points (
   next_review   TEXT,
   last_result   TEXT,
   mastered      INTEGER DEFAULT 0,
+  important     INTEGER DEFAULT 0,    -- 用户手动标记的重点/难记知识点
   created_at    TEXT DEFAULT (datetime('now')),
   updated_at    TEXT DEFAULT (datetime('now'))
 );
@@ -69,3 +91,5 @@ CREATE TABLE IF NOT EXISTS todos (
 CREATE INDEX IF NOT EXISTS idx_kp_next_review ON knowledge_points(next_review);
 CREATE INDEX IF NOT EXISTS idx_kp_category   ON knowledge_points(category);
 CREATE INDEX IF NOT EXISTS idx_log_date      ON practice_logs(log_date);
+CREATE INDEX IF NOT EXISTS idx_mistakes_next_review ON mistakes(next_review);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mistakes_task_question ON mistakes(task_type_id, question_no);
