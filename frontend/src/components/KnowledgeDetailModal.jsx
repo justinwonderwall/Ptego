@@ -10,7 +10,7 @@ const CAT_COLORS = {
   polysemy:     'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300',
 };
 
-export default function KnowledgeDetailModal({ item, onClose }) {
+export default function KnowledgeDetailModal({ item, onClose, onEdit }) {
   const { t } = useTranslation();
   const [popupWord, setPopupWord] = useState(null);
 
@@ -67,13 +67,24 @@ export default function KnowledgeDetailModal({ item, onClose }) {
           </div>
         )}
 
-        <button
-          onClick={onClose}
-          className="w-full border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm
-            text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-        >
-          {t('common.close')}
-        </button>
+        <div className="flex gap-2">
+          {onEdit && (
+            <button
+              onClick={() => onEdit(item)}
+              className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm font-medium
+                text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              {t('common.edit')}
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="flex-1 border border-slate-200 dark:border-slate-600 rounded-lg py-2.5 text-sm
+              text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            {t('common.close')}
+          </button>
+        </div>
       </div>
 
       {popupWord && <WordPopup word={popupWord} onClose={() => setPopupWord(null)} />}

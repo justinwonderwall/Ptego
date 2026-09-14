@@ -37,7 +37,7 @@ export default function KnowledgeEditModal({ item, onClose, onSaved }) {
     setError(null);
     try {
       await api.updateKnowledge(item.id, form);
-      onSaved();
+      onSaved(form);
     } catch (e) {
       setError(t(`errors.${e.code}`, t('errors.generic')));
       setSaving(false);

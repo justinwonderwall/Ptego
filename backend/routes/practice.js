@@ -27,15 +27,35 @@ router.post('/logs/parse-screenshot', upload.single('image'), async (req, res) =
 });
 
 router.post('/logs', (req, res) => {
-  const { task_type_id, count = 1, score_pct, note, log_date, question_no } = req.body;
+  const { task_type_id, count = 1, score_pct, note, log_date, question_no, low_score_items } = req.body;
   if (!task_type_id) return res.status(400).json({ error: 'task_type_id is required' });
   const date = log_date || new Date().toISOString().slice(0, 10);
   const result = db.run(
     'INSERT INTO practice_logs (task_type_id, log_date, count, score_pct, note, question_no) VALUES (?, ?, ?, ?, ?, ?)',
     [task_type_id, date, count, score_pct ?? null, note ?? null, question_no || null]
   );
+
+  // A single check-in's overall score_pct is an average across every row of a
+  // pasted table — that average can sit above the mistake-book threshold even
+  // when one individual row (its own question_no) scored well below it. Grade
+  // the primary question_no/score_pct as before, then grade each
+  // individually-identified low-scoring row from the table on top of that.
   const mistake = mistakeBook.recordAttempt({ task_type_id, question_no, score_pct });
-  res.status(201).json({ id: result.lastInsertRowid, mistake });
+  const mistakes = mistake ? [mistake] : [];
+  if (Array.isArray(low_score_items)) {
+    for (const item of low_score_items) {
+      if (!item || !item.question_no || !Number.isFinite(item.score_pct)) continue;
+      const r = mistakeBook.recordAttempt({ task_type_id, question_no: String(item.question_no), score_pct: item.score_pct });
+      if (r) mistakes.push(r);
+    }
+  }
+
+  res.status(201).json({ id: result.lastInsertRowid, mistake, mistakes });
+});
+
+router.delete('/logs/:id', (req, res) => {
+  db.run('DELETE FROM practice_logs WHERE id = ?', [req.params.id]);
+  res.json({ ok: true });
 });
 
 router.get('/logs', (req, res) => {

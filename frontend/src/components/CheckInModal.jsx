@@ -20,6 +20,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
   const [showCalc, setShowCalc] = useState(false);
   const [parsingImage, setParsingImage] = useState(false);
   const [parseNote, setParseNote] = useState(null);
+  const [lowScoreItems, setLowScoreItems] = useState([]);
   const [dueMistakes, setDueMistakes] = useState([]);
 
   // Surface today's due redos for this exact task so the user can pick the
@@ -47,8 +48,15 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
         score_pct: s,
         question_no: questionNo.trim() || null,
         note: note.trim() || null,
+        low_score_items: lowScoreItems,
       });
-      onSuccess(result.mistake ? MISTAKE_MESSAGES[result.mistake.action] : null);
+      const mistakes = result.mistakes || (result.mistake ? [result.mistake] : []);
+      const message = mistakes.length > 1
+        ? t('checkIn.multipleMistakesAdded', { count: mistakes.length })
+        : mistakes.length === 1
+        ? MISTAKE_MESSAGES[mistakes[0].action]
+        : null;
+      onSuccess(message);
       onClose();
     } catch (e) {
       setError(t(`errors.${e.code}`, t('errors.generic')));
@@ -70,6 +78,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
     setParsingImage(true);
     setError(null);
     setParseNote(null);
+    setLowScoreItems([]);
     try {
       const fd = new FormData();
       fd.append('image', file);
@@ -77,6 +86,7 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
       if (result.count != null) setCount(String(result.count));
       if (result.score_pct != null) setScore(String(result.score_pct));
       if (result.question_no) setQuestionNo(result.question_no);
+      if (result.low_score_items?.length) setLowScoreItems(result.low_score_items);
       if (result.count == null && result.score_pct == null) {
         setError(t('checkIn.errNoDataRecognized'));
       } else {
@@ -180,6 +190,11 @@ export default function CheckInModal({ task, onClose, onSuccess }) {
             </div>
             {parseNote && (
               <p className="text-xs text-green-600 dark:text-green-400 mt-1.5">✓ {parseNote}</p>
+            )}
+            {lowScoreItems.length > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                ⚠️ {t('checkIn.lowScoreDetected', { list: lowScoreItems.map(it => `#${it.question_no}`).join('、') })}
+              </p>
             )}
           </div>
 

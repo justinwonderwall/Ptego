@@ -3,6 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { api } from '../api';
 import { ClickableText } from './DictionaryLookup';
 import WordPopup from './WordPopup';
+import KnowledgeEditModal from './KnowledgeEditModal';
 
 const CAT_COLORS = {
   grammar:      'bg-blue-50   text-blue-600   dark:bg-blue-900/30   dark:text-blue-300',
@@ -33,6 +34,7 @@ export default function Quiz() {
   const [doneCount, setDoneCount] = useState(0);
   const [initialTotal, setInitialTotal] = useState(0);
   const [popupWord, setPopupWord] = useState(null);
+  const [editItem, setEditItem]   = useState(null);
 
   // A vocab-notebook tab overrides direction/mode entirely — the tag decides the
   // playstyle rather than the user's manual toggles (spelling → type it out,
@@ -122,6 +124,11 @@ export default function Quiz() {
   const resetCardState = () => { setFlipped(false); setInputVal(''); setInputShown(false); setPopupWord(null); };
   const goPrevCard = () => { setCurrentIdx(i => Math.max(0, i - 1)); resetCardState(); };
   const goNextCard = () => { setCurrentIdx(i => Math.min(queue.length - 1, i + 1)); resetCardState(); };
+
+  const handleEditSaved = (form) => {
+    setQueue(prev => prev.map(k => k.id === editItem.id ? { ...k, ...form } : k));
+    setEditItem(null);
+  };
 
   const toggleImportant = async () => {
     if (!current) return;
@@ -357,11 +364,19 @@ export default function Quiz() {
         </div>
       )}
 
-      <p className="text-center text-xs text-slate-300 dark:text-slate-600 pt-1">
-        {effectiveMode === 'listen' ? t('review.quiz.hintListen') : t('review.quiz.hintFull')}
+      <p className="flex items-center justify-center gap-1.5 text-xs text-slate-300 dark:text-slate-600 pt-1">
+        <span>{effectiveMode === 'listen' ? t('review.quiz.hintListen') : t('review.quiz.hintFull')}</span>
+        <span className="text-slate-200 dark:text-slate-700">·</span>
+        <button
+          onClick={() => setEditItem(current)}
+          className="text-slate-300 dark:text-slate-600 hover:text-blue-500 transition-colors underline underline-offset-2"
+        >
+          {t('common.edit')}
+        </button>
       </p>
 
       {popupWord && <WordPopup word={popupWord} onClose={() => setPopupWord(null)} />}
+      {editItem && <KnowledgeEditModal item={editItem} onClose={() => setEditItem(null)} onSaved={handleEditSaved} />}
     </div>
   );
 }

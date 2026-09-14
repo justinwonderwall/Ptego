@@ -174,6 +174,8 @@
     "mistakeAdded": "⚠️ 正确率低于 50%，已加入错题集",
     "mistakeUpdated": "📌 错题集里的这道题已更新重做记录",
     "mistakeMastered": "🎉 已连续两次达到目标正确率，该题已从错题集移除",
+    "multipleMistakesAdded": "⚠️ 检测到 {{count}} 道题正确率低于 50%，已加入错题集",
+    "lowScoreDetected": "AI 检测到以下题目正确率低于 50%，提交后将自动加入错题集：{{list}}",
     "errInvalidCount": "请输入有效题数",
     "errInvalidScore": "正确率须在 0–100 之间",
     "errNoDataRecognized": "AI 未能从截图中识别数据，请手动填写",
@@ -228,7 +230,9 @@
   "taskHistory": {
     "subtitle": "练习记录历史",
     "empty": "还没有练习记录",
-    "questionUnit": "题"
+    "questionUnit": "题",
+    "deleteEntryTitle": "清除这条记录",
+    "deleteConfirmTitle": "确认清除这条打卡记录？"
   },
   "aiChat": {
     "floating": {

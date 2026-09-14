@@ -1,18 +1,19 @@
 const fs = require('fs');
 
 const SYSTEM_PROMPT = `你是练习成绩识别助手。用户会上传一张练习成绩截图，可能有两种形式：
-1. 分题明细表格：每行一道练习/文章，评分格式类似 "3/4"（3 分之 4，即该题正确 3 个 / 共 4 个空或小题）。
+1. 分题明细表格：每行一道练习/文章，评分格式类似 "3/4"（3 分之 4，即该题正确 3 个 / 共 4 个空或小题）。有些这类表格每行会标出该题各自的编号（例如 "#370"、"No.370"），有些则没有。
 2. 汇总卡片：直接标注了"正确率""练习题数""正确数"这类整体数据。
 3. 单题评分详情：只针对一道题的评分页面，通常在顶部或角落标有该题的编号，例如 "#1211"、"题号 1211"、"No.1211"。
 
 请识别并计算：
 - count：完成的练习/文章条数。分题明细表格数一下有几行（几条记录）；如果图片本身直接标了"练习题数"之类的总数字段，就用那个数字；单题评分详情算 1。
 - score_pct：整体正确率（0-100 的数字，保留一位小数）。分题明细的话，把每行 "X/Y" 里的 X 全部加起来除以所有 Y 全部加起来，乘以 100；汇总卡片或单题评分的话直接用图片给出的正确率/得分数字。如果图片信息不够、无法判断，就设为 null，不要瞎猜。
-- question_no：截图里出现的题号/题目编号（去掉 # 号等符号，只保留数字或原始编号字符串），例如截图显示 "#1211" 就填 "1211"。只有单题评分详情类截图才会有题号；分题明细表格或汇总卡片通常没有，此时设为 null。不确定就设为 null，不要瞎猜。
+- question_no：截图里出现的题号/题目编号（去掉 # 号等符号，只保留数字或原始编号字符串），例如截图显示 "#1211" 就填 "1211"。只有单题评分详情类截图才会有题号；分题明细表格或汇总卡片通常没有单一题号，此时设为 null。不确定就设为 null，不要瞎猜。
+- score_items：**仅当截图是分题明细表格、且每行都能看到各自的题号时**才需要填写——把**每一行**都列出来（不要自己判断高低分、不要只挑低分的行，也不要心算百分比或做任何判断），每项照抄该行显示的原始 "X/Y" 两个数字：{ "question_no": "该行题号（去掉 # 号）", "correct": <该行 X/Y 中的 X，整数>, "total": <该行 X/Y 中的 Y，整数> }。是否算低分由程序根据这两个数字计算，不需要你判断。如果截图不是分题明细表格、或表格里没有逐行题号，就设为空数组 []。不确定某一行的题号就跳过那一行，不要瞎猜编号。
 - note：一句话概括你识别到的内容，例如"识别到 5 条练习记录，共 22 小题，正确 15 个"。
 
 只输出 JSON，不要输出任何解释性文字：
-{ "count": <整数或 null>, "score_pct": <数字或 null>, "question_no": <字符串或 null>, "note": "一句话概括" }`;
+{ "count": <整数或 null>, "score_pct": <数字或 null>, "question_no": <字符串或 null>, "score_items": [<{ "question_no": ..., "correct": ..., "total": ... }>...], "note": "一句话概括" }`;
 
 function getProvider() {
   const providerName = (process.env.AI_PROVIDER || 'claude').toLowerCase();
@@ -36,10 +37,27 @@ function parseResult(raw) {
     e.code = 'AI_RESPONSE_MALFORMED';
     throw e;
   }
+  // The model only copies the raw "correct/total" digits it sees per row —
+  // it does not judge or compute anything. The percentage and the <50%
+  // mistake-book threshold are both decided here in code, deterministically,
+  // so a vision misread can at worst corrupt one row's two digits instead of
+  // silently flipping a pass/fail judgment call the server can't audit.
+  const lowScoreItems = Array.isArray(parsed.score_items)
+    ? parsed.score_items
+        .filter(it =>
+          it && typeof it.question_no === 'string' && it.question_no.trim() &&
+          Number.isFinite(it.correct) && Number.isFinite(it.total) &&
+          it.total > 0 && it.correct >= 0 && it.correct <= it.total
+        )
+        .map(it => ({ question_no: it.question_no.trim(), score_pct: Math.round((it.correct / it.total) * 1000) / 10 }))
+        .filter(it => it.score_pct < 50)
+    : [];
+
   return {
     count: Number.isFinite(parsed.count) ? Math.round(parsed.count) : null,
     score_pct: Number.isFinite(parsed.score_pct) ? Math.round(parsed.score_pct * 10) / 10 : null,
     question_no: typeof parsed.question_no === 'string' && parsed.question_no.trim() ? parsed.question_no.trim() : null,
+    low_score_items: lowScoreItems,
     note: typeof parsed.note === 'string' ? parsed.note : null,
   };
 }

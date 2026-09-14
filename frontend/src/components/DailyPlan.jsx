@@ -150,7 +150,7 @@ export default function DailyPlan() {
       )}
 
       {historyTask && (
-        <TaskHistoryModal task={historyTask} onClose={() => setHistoryTask(null)} />
+        <TaskHistoryModal task={historyTask} onClose={() => setHistoryTask(null)} onChange={load} />
       )}
     </div>
   );

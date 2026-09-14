@@ -31,6 +31,7 @@ export const api = {
   getAccuracy: (range, opts = {}) => request(`/practice/logs/accuracy?${new URLSearchParams({ range, ...opts })}`),
   getStreak: ()           => request('/practice/logs/streak'),
   getTaskLogs: (taskTypeId) => request('/practice/logs?' + new URLSearchParams({ task_type_id: taskTypeId })),
+  deletePracticeLog: (id)  => request(`/practice/logs/${id}`, { method: 'DELETE' }),
   parsePracticeScreenshot: (formData) => fetch(BASE + '/practice/logs/parse-screenshot', { method: 'POST', body: formData })
     .then(r => r.json().then(d => { if (!r.ok) { const e = new Error(d.code || 'generic'); e.code = d.code || 'generic'; throw e; } return d; })),
 

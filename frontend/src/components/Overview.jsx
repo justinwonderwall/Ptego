@@ -313,7 +313,13 @@ export default function Overview() {
       )}
 
       {/* Detail modal */}
-      {detailItem && <KnowledgeDetailModal item={detailItem} onClose={() => setDetailItem(null)} />}
+      {detailItem && (
+        <KnowledgeDetailModal
+          item={detailItem}
+          onClose={() => setDetailItem(null)}
+          onEdit={(item) => { setDetailItem(null); setEditItem(item); }}
+        />
+      )}
 
       {/* Edit modal */}
       {editItem && <KnowledgeEditModal item={editItem} onClose={() => setEditItem(null)} onSaved={handleSaved} />}
