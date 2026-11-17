@@ -119,7 +119,7 @@ export default function MistakeBook({ onChange }) {
               <col className="w-[170px]" />
               <col className="w-[80px]" />
               <col />
-              <col className="w-[100px] hidden md:table-column" />
+              <col className="w-[150px] hidden md:table-column" />
               <col className="w-[76px]" />
               <col className="w-[80px]" />
             </colgroup>
@@ -175,11 +175,14 @@ export default function MistakeBook({ onChange }) {
                         ))}
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-xs whitespace-nowrap hidden md:table-cell">
+                    <td className="px-3 py-2 text-xs whitespace-nowrap overflow-hidden hidden md:table-cell">
                       {row.mastered ? (
                         <span className="text-slate-300 dark:text-slate-600">—</span>
                       ) : (
-                        <span className={isDue ? 'text-red-500 font-medium' : 'text-slate-400'}>
+                        <span
+                          title={isDue ? `${row.next_review} ${t('review.mistakeBook.dueSuffix')}` : row.next_review}
+                          className={`truncate block ${isDue ? 'text-red-500 font-medium' : 'text-slate-400'}`}
+                        >
                           {row.next_review}{isDue && ` ${t('review.mistakeBook.dueSuffix')}`}
                         </span>
                       )}

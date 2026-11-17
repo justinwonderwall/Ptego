@@ -111,6 +111,8 @@
       "viewAnswer": "查看",
       "yourAnswer": "你的答案：",
       "notFilled": "（未填写）",
+      "answerCorrect": "✓ 回答正确，即将自动切换下一张",
+      "answerWrong": "✗ 回答错误",
       "flip": "翻牌",
       "flipHint": "[空格]",
       "prevAria": "上一张",

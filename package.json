@@ -9,7 +9,8 @@
     "install:all": "npm install && npm --prefix frontend install",
     "backup": "bash scripts/backup.sh",
     "restore": "node scripts/restore.js",
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "deploy": "npm --prefix frontend run build && launchctl kickstart -k gui/$(id -u)/com.ptego.app"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.122.0",

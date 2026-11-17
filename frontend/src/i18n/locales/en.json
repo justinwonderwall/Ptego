@@ -111,6 +111,8 @@
       "viewAnswer": "Reveal",
       "yourAnswer": "Your answer:",
       "notFilled": "(not filled in)",
+      "answerCorrect": "✓ Correct — moving to the next card",
+      "answerWrong": "✗ Incorrect",
       "flip": "Flip",
       "flipHint": "[Space]",
       "prevAria": "Previous card",

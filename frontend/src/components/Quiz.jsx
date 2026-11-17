@@ -15,6 +15,10 @@ const CAT_COLORS = {
 // 生词本分类 → 决定复习玩法：拼写用输入模式，阅读用经典自评翻牌，发音直接摊开正反面自评。
 const VOCAB_TAB_VALUES = [null, 'pronunciation', 'spelling', 'reading'];
 const VOCAB_MODE = { pronunciation: 'listen', spelling: 'input', reading: 'self' };
+// Spelling drills show the Chinese meaning (+ phonetic, as a spell-along hint)
+// and ask for the English word — the reverse of every other vocab mode, which
+// shows English first.
+const VOCAB_DIRECTION = { pronunciation: 'en-zh', spelling: 'zh-en', reading: 'en-zh' };
 
 export default function Quiz() {
   const { t } = useTranslation();
@@ -29,18 +33,13 @@ export default function Quiz() {
   const [mode, setMode]           = useState('self');  // 'self' | 'input'
   const [inputVal, setInputVal]   = useState('');
   const [inputShown, setInputShown] = useState(false);
+  const [inputCorrect, setInputCorrect] = useState(null); // null | true | false
   const [grading, setGrading]     = useState(false);
   const [loading, setLoading]     = useState(true);
   const [doneCount, setDoneCount] = useState(0);
   const [initialTotal, setInitialTotal] = useState(0);
   const [popupWord, setPopupWord] = useState(null);
   const [editItem, setEditItem]   = useState(null);
-
-  // A vocab-notebook tab overrides direction/mode entirely — the tag decides the
-  // playstyle rather than the user's manual toggles (spelling → type it out,
-  // reading → classic flip-and-self-grade, pronunciation → listen-and-self-grade).
-  const effectiveDirection = vocabTab ? 'en-zh' : direction;
-  const effectiveMode = vocabTab ? VOCAB_MODE[vocabTab] : mode;
 
   useEffect(() => {
     setLoading(true);
@@ -49,6 +48,7 @@ export default function Quiz() {
     setFlipped(false);
     setInputVal('');
     setInputShown(false);
+    setInputCorrect(null);
     api.getDue({ vocab_type: vocabTab, important: importantOnly }).then(rows => {
       setQueue(rows);
       setInitialTotal(rows.length);
@@ -59,6 +59,21 @@ export default function Quiz() {
   const current = queue[currentIdx];
   const isDone  = !loading && queue.length === 0;
 
+  // A vocab-notebook tab overrides direction/mode entirely — the tag decides the
+  // playstyle rather than the user's manual toggles (spelling → type it out,
+  // reading → classic flip-and-self-grade, pronunciation → listen-and-self-grade).
+  // Under "全部" there's no tab to force this, so each card falls back to its
+  // own vocab_type — a spelling-notebook entry still gets typed out, not just
+  // recognized, even while browsing the combined queue. Plain knowledge points
+  // (no vocab_type at all, e.g. grammar/collocation entries) keep using the
+  // manual direction/mode toggles.
+  const cardVocabType = vocabTab || (current && VOCAB_MODE[current.vocab_type] ? current.vocab_type : null);
+  const effectiveDirection = cardVocabType ? VOCAB_DIRECTION[cardVocabType] : direction;
+  const effectiveMode = cardVocabType ? VOCAB_MODE[cardVocabType] : mode;
+  // Spelling needs the phonetic visible before the flip too — it's the audible
+  // hint the user spells from, not just a post-answer confirmation.
+  const showPhoneticUpfront = effectiveDirection === 'en-zh' || (effectiveMode === 'input' && effectiveDirection === 'zh-en');
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setPopupWord(null); }, [current?.id]);
 
@@ -67,6 +82,13 @@ export default function Quiz() {
   useEffect(() => {
     if (effectiveMode === 'listen' && current) setFlipped(true);
   }, [effectiveMode, current?.id]);
+
+  // Spelling drills auto-play the pronunciation on each new card — it's a
+  // dictation exercise, so hearing the word is the whole point of showing up.
+  useEffect(() => {
+    if (cardVocabType === 'spelling' && current?.audio_url) playAudio(current.audio_url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id, cardVocabType]);
 
   const flip = useCallback(() => { setFlipped(true); }, []);
 
@@ -90,10 +112,20 @@ export default function Quiz() {
       setFlipped(false);
       setInputVal('');
       setInputShown(false);
+      setInputCorrect(null);
     } finally {
       setGrading(false);
     }
   }, [current, currentIdx, grading, queue.length]);
+
+  // A correctly typed answer grades itself as "known" and advances after a
+  // beat long enough to register the green flash, so a spelling/typing drill
+  // doesn't need a manual tap on every single correct card.
+  useEffect(() => {
+    if (inputCorrect !== true) return;
+    const timer = setTimeout(() => grade('know'), 700);
+    return () => clearTimeout(timer);
+  }, [inputCorrect, grade]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -111,17 +143,20 @@ export default function Quiz() {
   const playAudio = (url) => { if (url) new Audio(url).play().catch(() => {}); };
 
   const submitInput = () => {
-    if (!inputVal.trim()) return;
+    if (!inputVal.trim() || !current) return;
+    const expected = effectiveDirection === 'en-zh' ? current.meaning_zh : current.term_en;
+    const isRight = inputVal.trim().toLowerCase() === String(expected || '').trim().toLowerCase();
+    setInputCorrect(isRight);
     setInputShown(true);
     setFlipped(true);
   };
 
-  const resetDirection = () => { setDir(d => d === 'en-zh' ? 'zh-en' : 'en-zh'); setFlipped(false); setInputVal(''); setInputShown(false); setPopupWord(null); };
-  const resetMode = () => { setMode(m => m === 'self' ? 'input' : 'self'); setFlipped(false); setInputVal(''); setInputShown(false); setPopupWord(null); };
+  const resetDirection = () => { setDir(d => d === 'en-zh' ? 'zh-en' : 'en-zh'); setFlipped(false); setInputVal(''); setInputShown(false); setInputCorrect(null); setPopupWord(null); };
+  const resetMode = () => { setMode(m => m === 'self' ? 'input' : 'self'); setFlipped(false); setInputVal(''); setInputShown(false); setInputCorrect(null); setPopupWord(null); };
 
   // Manual browsing — moves the viewed card within the already-loaded queue
   // without grading it or touching doneCount/SRS state.
-  const resetCardState = () => { setFlipped(false); setInputVal(''); setInputShown(false); setPopupWord(null); };
+  const resetCardState = () => { setFlipped(false); setInputVal(''); setInputShown(false); setInputCorrect(null); setPopupWord(null); };
   const goPrevCard = () => { setCurrentIdx(i => Math.max(0, i - 1)); resetCardState(); };
   const goNextCard = () => { setCurrentIdx(i => Math.min(queue.length - 1, i + 1)); resetCardState(); };
 
@@ -200,7 +235,7 @@ export default function Quiz() {
           <Trans i18nKey="review.quiz.dueCount" count={queue.length} components={{ b: <span className="font-bold text-slate-900 dark:text-white" /> }} />
           {doneCount > 0 && <span className="text-green-500 ml-2">{t('review.quiz.completedCount', { count: doneCount })}</span>}
         </p>
-        {!vocabTab && (
+        {!cardVocabType && (
           <div className="flex gap-1.5">
             <button onClick={resetDirection}
               className="text-xs px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-slate-500 hover:border-blue-300 transition-colors">
@@ -274,8 +309,8 @@ export default function Quiz() {
             {effectiveDirection === 'en-zh' ? <ClickableText text={front} onWordClick={setPopupWord} /> : front}
           </p>
 
-          {/* Phonetic always on front when EN side is showing */}
-          {((effectiveDirection === 'en-zh') || (effectiveDirection === 'zh-en' && flipped)) && current.phonetic && (
+          {/* Phonetic on front when EN side is showing, or as a spelling hint */}
+          {(showPhoneticUpfront || (effectiveDirection === 'zh-en' && flipped)) && current.phonetic && (
             <div className="flex items-center gap-1.5">
               <span className="text-sm text-slate-400 font-light">{current.phonetic}</span>
               {current.audio_url && (
@@ -312,9 +347,18 @@ export default function Quiz() {
 
               {/* User input comparison */}
               {effectiveMode === 'input' && inputShown && (
-                <div className="text-xs text-left bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
-                  <span className="text-slate-400">{t('review.quiz.yourAnswer')}</span>
-                  <span className="text-slate-700 dark:text-slate-200">{inputVal || t('review.quiz.notFilled')}</span>
+                <div className={`text-xs text-left rounded-lg p-2 border ${
+                  inputCorrect
+                    ? 'bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-800'
+                    : 'bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-800'
+                }`}>
+                  <div>
+                    <span className="text-slate-400">{t('review.quiz.yourAnswer')}</span>
+                    <span className="text-slate-700 dark:text-slate-200">{inputVal || t('review.quiz.notFilled')}</span>
+                  </div>
+                  <p className={`mt-1 font-medium ${inputCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                    {inputCorrect ? t('review.quiz.answerCorrect') : t('review.quiz.answerWrong')}
+                  </p>
                 </div>
               )}
 
@@ -322,8 +366,8 @@ export default function Quiz() {
                 {effectiveDirection === 'zh-en' ? <ClickableText text={back} onWordClick={setPopupWord} /> : back}
               </p>
 
-              {/* Phonetic on back when ZH side was front */}
-              {effectiveDirection === 'zh-en' && current.phonetic && (
+              {/* Phonetic on back when ZH side was front (unless already shown upfront as a spelling hint) */}
+              {!showPhoneticUpfront && effectiveDirection === 'zh-en' && current.phonetic && (
                 <div className="flex items-center justify-center gap-1.5">
                   <span className="text-sm text-slate-400">{current.phonetic}</span>
                   {current.audio_url && (
@@ -336,6 +380,13 @@ export default function Quiz() {
                 <p className="text-sm text-slate-400 italic leading-relaxed">
                   "<ClickableText text={current.usage_example} onWordClick={setPopupWord} />"
                 </p>
+              )}
+
+              {current.study_note && (
+                <div className="text-left bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg px-3 py-2.5">
+                  <p className="text-[10px] font-semibold text-blue-500 dark:text-blue-300 uppercase tracking-wider mb-1">{t('knowledge.fields.studyNote')}</p>
+                  <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{current.study_note}</p>
+                </div>
               )}
             </div>
           )}
